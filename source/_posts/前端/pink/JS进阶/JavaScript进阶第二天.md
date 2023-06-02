@@ -209,8 +209,22 @@ date: 2023-04-11 20:50:04
 
 13. 实例方法 `findIndex`  查找元素的索引值
 
-    ​
+**注意：**将伪数组转化为真数组，可以使用 `Array.from` 静态方法或 `Array.prototype.slice.call` 方法。
 
+```html
+<script>
+  // 伪数组
+  let list = {
+    0: 'html',
+    1: 'css',
+    2: 'javascript',
+    length: 3
+  }
+  // 将伪数组转化为真数组
+  let arr = Array.from(list)
+  console.log(arr)
+</script>
+```
 ### 包装类型
 
 在 JavaScript 中的字符串、数值、布尔具有对象的使用特征，如具有属性和方法，如下代码举例：
