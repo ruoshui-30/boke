@@ -25,6 +25,44 @@ date: 2023-04-11 20:50:44
 
 >如果是简单数据类型拷贝值，引用数据类型拷贝的是地址 (简单理解： 如果是单层对象，没问题，如果有多层就有问题)
 
+#### 思考？
+
+1. 直接赋值和浅拷贝有什么区别？
+
+a.直接赋值的方法,只要是对象，都会相互影响，因为是直接拷贝对象栈里面的地址。
+
+b.浅拷贝如果是一层对象，不互相影响，如果是多层对象，会相互影响。
+
+2. 浅拷贝怎么理解？
+
+a.拷贝对象之后，如果对象中的属性是基本数据类型，修改拷贝之后的对象，不会影响原对象。
+b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，会影响原对象。
+
+```js
+  <script>
+    const obj = {
+      uname: 'pink',
+      age: 18,
+      family: {
+        baby: '小pink'
+      }
+    }
+    // 浅拷贝
+    // const o = { ...obj }
+    // console.log(o)
+    // o.age = 20
+    // console.log(o)
+    // console.log(obj)
+    const o = {}
+    Object.assign(o, obj)
+    o.age = 20
+    o.family.baby = '老pink'
+    console.log(o)
+    console.log(obj)
+  </script>
+```
+
+
 ### 深拷贝
 
 首先浅拷贝和深拷贝只针对引用类型
@@ -36,6 +74,20 @@ date: 2023-04-11 20:50:44
 1. 通过递归实现深拷贝
 2. lodash/cloneDeep
 3. 通过JSON.stringify()实现
+
+
+#### 用递归的方式实现一秒钟打印一次当前时间
+
+```js
+  <script>
+    function getTime() {
+      document.querySelector('div').innerHTML = new Date().toLocaleString()
+      setTimeout(getTime, 1000)
+    }
+    getTime()
+  </script>
+```
+
 
 #### 递归实现深拷贝
 
@@ -191,27 +243,27 @@ date: 2023-04-11 20:50:44
 ### try ... catch
 
 ```html
-<script>
-   function foo() {
+  <script>
+    function fn() {
       try {
-        // 查找 DOM 节点
+        // 可能发送错误的代码 要写到 try
         const p = document.querySelector('.p')
         p.style.color = 'red'
-      } catch (error) {
-        // try 代码段中执行有错误时，会执行 catch 代码段
-        // 查看错误信息
-        console.log(error.message)
-        // 终止代码继续执行
-        return
-
+      } catch (err) {
+        // 拦截错误，提示浏览器提供的错误信息，但是不中断程序的执行
+        console.log(err.message)
+        throw new Error('你看看，选择器错误了吧')
+        // 需要加return 中断程序
+        // return
       }
       finally {
-          alert('执行')
+        // 不管你程序对不对，一定会执行的代码
+        alert('弹出对话框')
       }
-      console.log('如果出现错误，我的语句不会执行')
+      console.log(11)
     }
-    foo()
-</script>
+    fn()
+  </script>
 ```
 
 总结：
@@ -265,6 +317,170 @@ date: 2023-04-11 20:50:44
   user.sayHello()
 </script>
 ```
+
+#### 普通函数的this指向问题
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <button>点击</button>
+  <script>
+    // 普通函数：  谁调用我，this就指向谁
+    console.log(this)  // window
+    function fn() {
+      console.log(this)  // window    
+    }
+    window.fn()
+    window.setTimeout(function () {
+      console.log(this) // window 
+    }, 1000)
+    document.querySelector('button').addEventListener('click', function () {
+      console.log(this)  // 指向 button
+    })
+    const obj = {
+      sayHi: function () {
+        console.log(this)  // 指向 obj
+      }
+    }
+    obj.sayHi()
+  </script>
+</body>
+
+</html>
+```
+
+#### call
+
+`call` 方法可以动态的指定函数中 `this` 的值，`call` 方法的第一个参数就是 `this` 的值，后面的参数是函数执行时的参数。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const obj = {
+      uname: 'pink'
+    }
+    function fn(x, y) {
+      console.log(this) // window
+      console.log(x + y)
+    }
+    // 1. 调用函数  
+    // 2. 改变 this 指向
+    fn.call(obj, 1, 2)
+  </script>
+</body>
+
+</html>
+```
+
+#### apply
+
+`apply` 方法与 `call` 方法的作用一致，只是传参方式不同，`apply` 方法的第一个参数也是 `this` 的值，第二个参数是一个数组，数组中的元素是函数执行时的参数。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const obj = {
+      age: 18
+    }
+    function fn(x, y) {
+      console.log(this) // {age: 18}
+      console.log(x + y)
+    }
+    // 1. 调用函数
+    // 2. 改变this指向 
+    //  fn.apply(this指向谁, 数组参数)
+    fn.apply(obj, [1, 2])
+    // 3. 返回值   本身就是在调用函数，所以返回值就是函数的返回值
+
+    // 使用场景： 求数组最大值
+    // const max = Math.max(1, 2, 3)
+    // console.log(max)
+    const arr = [100, 44, 77]
+    const max = Math.max.apply(Math, arr)
+    const min = Math.min.apply(null, arr)
+    console.log(max, min)
+    // 使用场景： 求数组最大值
+    console.log(Math.max(...arr))
+  </script>
+</body>
+
+</html>
+```
+
+#### bind
+
+`bind` 方法与 `call` 方法的作用一致，只是 `bind` 方法不会立即调用函数，而是返回一个新的函数，新函数中的 `this` 值已经被绑定，后面的参数是函数执行时的参数。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const obj = {
+      age: 18
+    }
+    function fn(x, y) {
+      console.log(this) // {age: 18}
+      console.log(x + y)
+    }
+    // 1. 调用函数
+    // 2. 改变this指向 
+    //  fn.apply(this指向谁, 数组参数)
+    fn.apply(obj, [1, 2])
+    // 3. 返回值   本身就是在调用函数，所以返回值就是函数的返回值
+
+    // 使用场景： 求数组最大值
+    // const max = Math.max(1, 2, 3)
+    // console.log(max)
+    const arr = [100, 44, 77]
+    const max = Math.max.apply(Math, arr)
+    const min = Math.min.apply(null, arr)
+    console.log(max, min)
+    // 使用场景： 求数组最大值
+    console.log(Math.max(...arr))
+  </script>
+</body>
+
+</html>
+```
+
 
 注： 普通函数没有明确调用者时 `this` 值为 `window`，严格模式下没有调用者时 `this` 的值为 `undefined`。
 
@@ -461,7 +677,274 @@ date: 2023-04-11 20:50:44
 所谓节流，就是指连续触发事件但是在 n 秒中只执行一次函数
 
 
+### 节流防抖素材
 
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <style>
+    .box {
+      width: 500px;
+      height: 500px;
+      background-color: #ccc;
+      color: #fff;
+      text-align: center;
+      font-size: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box"></div>
+  <script>
+    const box = document.querySelector('.box')
+    let i = 1  // 让这个变量++
+    // 鼠标移动函数
+    function mouseMove() {
+      box.innerHTML = ++i
+      // 如果里面存在大量操作 dom 的情况，可能会卡顿
+    }
+    // console.log(mouseMove)
+    // 节流函数 throttle 
+    function throttle(fn, t) {
+      // 起始时间
+      let startTime = 0
+      return function () {
+        // 得到当前的时间
+        let now = Date.now()
+        // 判断如果大于等于 500 采取调用函数
+        if (now - startTime >= t) {
+          // 调用函数
+          fn()
+          // 起始的时间 = 现在的时间   写在调用函数的下面 
+          startTime = now
+        }
+      }
+    }
+    box.addEventListener('mousemove', throttle(mouseMove, 500))
+
+    // throttle(mouseMove, 500) === function () { console.log(1) }
+
+
+    // box.addEventListener('mousemove', function () {
+    //   // 得到当前的时间
+    //   let now = Date.now()
+    //   // 判断如果大于等于 500 采取调用函数
+    //   if (now - startTime >= t) {
+    //     // 调用函数
+    //     fn()
+    //     // 起始的时间 = 现在的时间   写在调用函数的下面
+    //     startTime = now
+    //   }
+    // })
+
+  </script>
+</body>
+
+</html>
+```
+
+### 防抖小案例
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <style>
+    .box {
+      width: 500px;
+      height: 500px;
+      background-color: #ccc;
+      color: #fff;
+      text-align: center;
+      font-size: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box"></div>
+  <script>
+    const box = document.querySelector('.box')
+    let i = 1  // 让这个变量++
+    // 鼠标移动函数
+    function mouseMove() {
+      box.innerHTML = ++i
+      // 如果里面存在大量操作 dom 的情况，可能会卡顿
+    }
+    // 防抖函数
+    function debounce(fn, t) {
+      let timeId
+      return function () {
+        // 如果有定时器就清除
+        if (timeId) clearTimeout(timeId)
+        // 开启定时器 200
+        timeId = setTimeout(function () {
+          fn()
+        }, t)
+      }
+    }
+    // box.addEventListener('mousemove', mouseMove)
+    box.addEventListener('mousemove', debounce(mouseMove, 200))
+
+  </script>
+</body>
+
+</html>
+```
+
+### lodash节流和防·
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <style>
+    .box {
+      width: 500px;
+      height: 500px;
+      background-color: #ccc;
+      color: #fff;
+      text-align: center;
+      font-size: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box"></div>
+  <script src="./lodash.min.js"></script>
+  <script>
+    const box = document.querySelector('.box')
+    let i = 1  // 让这个变量++
+    // 鼠标移动函数
+    function mouseMove() {
+      box.innerHTML = ++i
+      // 如果里面存在大量操作 dom 的情况，可能会卡顿
+    }
+
+    // box.addEventListener('mousemove', mouseMove)
+    // lodash 节流写法
+    // box.addEventListener('mousemove', _.throttle(mouseMove, 500))
+    // lodash 防抖的写法
+    box.addEventListener('mousemove', _.debounce(mouseMove, 500))
+
+  </script>
+</body>
+
+</html>
+```
+
+### 节流综合案例
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="never" />
+  <title>综合案例</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 1200px;
+      margin: 0 auto;
+    }
+
+    .video video {
+      width: 100%;
+      padding: 20px 0;
+    }
+
+    .elevator {
+      position: fixed;
+      top: 280px;
+      right: 20px;
+      z-index: 999;
+      background: #fff;
+      border: 1px solid #e4e4e4;
+      width: 60px;
+    }
+
+    .elevator a {
+      display: block;
+      padding: 10px;
+      text-decoration: none;
+      text-align: center;
+      color: #999;
+    }
+
+    .elevator a.active {
+      color: #1286ff;
+    }
+
+    .outline {
+      padding-bottom: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="http://pip.itcast.cn">
+        <img src="https://pip.itcast.cn/img/logo_v3.29b9ba72.png" alt="" />
+      </a>
+    </div>
+    <div class="video">
+      <video src="https://v.itheima.net/LapADhV6.mp4" controls></video>
+    </div>
+    <div class="elevator">
+      <a href="javascript:;" data-ref="video">视频介绍</a>
+      <a href="javascript:;" data-ref="intro">课程简介</a>
+      <a href="javascript:;" data-ref="outline">评论列表</a>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+  <script>
+    // 1. 获取元素  要对视频进行操作
+    const video = document.querySelector('video')
+    video.ontimeupdate = _.throttle(() => {
+      // console.log(video.currentTime) 获得当前的视频时间
+      // 把当前的时间存储到本地存储
+      localStorage.setItem('currentTime', video.currentTime)
+    }, 1000)
+
+    // 打开页面触发事件，就从本地存储里面取出记录的时间， 赋值给  video.currentTime
+    video.onloadeddata = () => {
+      // console.log(111)
+      video.currentTime = localStorage.getItem('currentTime') || 0
+    }
+
+  </script>
+</body>
+
+</html>
+```
 
 
 

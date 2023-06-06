@@ -276,7 +276,7 @@ date: 2023-04-11 20:50:14
 </body>
 ```
 
-### 原型链
+### 原型链(面试高频)
 
 基于原型对象的继承使得不同构造函数的原型对象关联在一起，并且这种关联的关系是一种链状的结构，我们将原型对
 
@@ -295,16 +295,17 @@ date: 2023-04-11 20:50:14
 
     }
     const ldh = new Person()
-    // console.log(ldh.__proto__ === Person.prototype)
-    // console.log(Person.prototype.__proto__ === Object.prototype)
-    console.log(ldh instanceof Person)
-    console.log(ldh instanceof Object)
-    console.log(ldh instanceof Array)
-    console.log([1, 2, 3] instanceof Array)
-    console.log(Array instanceof Object)
+    // console.log(ldh.__proto__ === Person.prototype) // true
+    // console.log(Person.prototype.__proto__ === Object.prototype) // true
+    console.log(ldh instanceof Person) // true
+    console.log(ldh instanceof Object)  // true
+    console.log(ldh instanceof Array) // false
+    console.log([1, 2, 3] instanceof Array) // true
+    console.log(Array instanceof Object)  // true
   </script>
 </body>
 ```
+#### 原型链的查找机制
 
 ① 当访问一个对象的属性（包括方法）时，首先查找这个对象自身有没有该属性。
 
@@ -320,3 +321,136 @@ date: 2023-04-11 20:50:14
 
 
 
+#### 案例(模态框效果用构造函数实现)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>面向对象封装消息提示</title>
+  <style>
+    .modal {
+      width: 300px;
+      min-height: 100px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      position: fixed;
+      z-index: 999;
+      left: 50%;
+      top: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      background-color: #fff;
+    }
+
+    .modal .header {
+      line-height: 40px;
+      padding: 0 10px;
+      position: relative;
+      font-size: 20px;
+    }
+
+    .modal .header i {
+      font-style: normal;
+      color: #999;
+      position: absolute;
+      right: 15px;
+      top: -2px;
+      cursor: pointer;
+    }
+
+    .modal .body {
+      text-align: center;
+      padding: 10px;
+    }
+
+    .modal .footer {
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px;
+    }
+
+    .modal .footer a {
+      padding: 3px 8px;
+      background: #ccc;
+      text-decoration: none;
+      color: #fff;
+      border-radius: 2px;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+
+    .modal .footer a.submit {
+      background-color: #369;
+    }
+  </style>
+</head>
+
+<body>
+  <button id="delete">删除</button>
+  <button id="login">登录</button>
+
+  <!-- <div class="modal">
+    <div class="header">温馨提示 <i>x</i></div>
+    <div class="body">您没有删除权限操作</div>
+  </div> -->
+
+
+  <script>
+    // 1.  模态框的构造函数
+    function Modal(title = '', message = '') {
+      // 公共的属性部分
+      this.title = title
+      this.message = message
+      // 因为盒子是公共的
+      // 1. 创建 一定不要忘了加 this 
+      this.modalBox = document.createElement('div')
+      // 2. 添加类名
+      this.modalBox.className = 'modal'
+      // 3. 填充内容 更换数据
+      this.modalBox.innerHTML = `
+        <div class="header">${this.title} <i>x</i></div>
+        <div class="body">${this.message}</div>
+      `
+      // console.log(this.modalBox)
+    }
+    // 2. 打开方法 挂载 到 模态框的构造函数原型身上
+    Modal.prototype.open = function () {
+      if (!document.querySelector('.modal')) {
+        // 把刚才创建的盒子 modalBox  渲染到 页面中  父元素.appendChild(子元素)
+        document.body.appendChild(this.modalBox)
+        // 获取 x  调用关闭方法
+        this.modalBox.querySelector('i').addEventListener('click', () => {
+          // 箭头函数没有this 上一级作用域的this
+          // 这个this 指向 m 
+          this.close()
+        })
+      }
+    }
+    // 3. 关闭方法 挂载 到 模态框的构造函数原型身上
+    Modal.prototype.close = function () {
+      document.body.removeChild(this.modalBox)
+    }
+
+    // 4. 按钮点击
+    document.querySelector('#delete').addEventListener('click', () => {
+      const m = new Modal('温馨提示', '您没有权限删除')
+      // 调用 打开方法
+      m.open()
+    })
+
+    // 5. 按钮点击
+    document.querySelector('#login').addEventListener('click', () => {
+      const m = new Modal('友情提示', '您还么有注册账号')
+      // 调用 打开方法
+      m.open()
+    })
+
+  </script>
+</body>
+
+</html>
+```
