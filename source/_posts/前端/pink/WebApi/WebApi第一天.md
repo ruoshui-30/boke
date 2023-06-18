@@ -170,6 +170,63 @@ DOM（Document Object Model）是将整个 HTML 文档的每一个标签元素�
 - document.getElementById 专门获取元素类型节点，根据标签的 `id`  属性查找
 - 任意 DOM 对象都包含 nodeType 属性，用来检检测节点类型
 
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .box {
+      width: 200px;
+      height: 200px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">123</div>
+  <div class="box">abc</div>
+  <p id="nav">导航栏</p>
+  <ul class="nav">
+    <li>测试1</li>
+    <li>测试2</li>
+    <li>测试3</li>
+  </ul>
+  <script>
+    // 1. 获取匹配的第一个元素
+    // const box = document.querySelector('div')
+    // const box = document.querySelector('.box')
+    // console.log(box)
+    // const nav = document.querySelector('#nav')
+    // console.log(nav)
+    // nav.style.color = 'red'
+    // 1. 我要获取第一个小 ulli
+    // const li = document.querySelector('ul li:first-child')
+    // console.log(li)
+    // 2. 选择所有的小li
+    // const lis = document.querySelectorAll('ul li')
+    // console.log(lis)
+
+    // 1.获取元素
+    const lis = document.querySelectorAll('.nav li')
+    // console.log(lis)
+    for (let i = 0; i < lis.length; i++) {
+      console.log(lis[i]) // 每一个小li对象
+    }
+
+    const p = document.querySelectorAll('#nav')
+    // console.log(p)
+    // p[0].style.color = 'red'
+  </script>
+</body>
+
+</html>
+```
+
 ## 操作元素内容
 通过修改 DOM 的文本内容，动态改变网页的内容。
 
@@ -197,7 +254,115 @@ DOM（Document Object Model）是将整个 HTML 文档的每一个标签元素�
 
 总结：如果文本内容中包含 `html` 标签时推荐使用 `innerHTML`，否则建议使用 `innerText` 属性。
 
-##操作元素属性 
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div class="box">我是文字的内容</div>
+  <script>
+    // const obj = {
+    //   name: 'pink老师'
+    // }
+    // console.log(obj.name)
+    // obj.name = 'red老师'
+    // 1. 获取元素
+    const box = document.querySelector('.box')
+    // 2. 修改文字内容  对象.innerText 属性
+    // console.log(box.innerText)  // 获取文字内容
+    // // box.innerText = '我是一个盒子'  // 修改文字内容
+    // box.innerText = '<strong>我是一个盒子</strong>'  // 不解析标签
+
+    // 3. innerHTML 解析标签
+    console.log(box.innerHTML)
+    // box.innerHTML = '我要更换'
+    box.innerHTML = '<strong>我要更换</strong>'
+  </script>
+</body>
+
+</html>
+```
+
+### 随机抽奖案例
+  
+  ```html
+  <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>年会抽奖</title>
+  <style>
+    .wrapper {
+      width: 840px;
+      height: 420px;
+      background: url(./images/bg01.jpg) no-repeat center / cover;
+      padding: 100px 250px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <strong>传智教育年会抽奖</strong>
+    <h1>一等奖：<span id="one">???</span></h1>
+    <h3>二等奖：<span id="two">???</span></h3>
+    <h5>三等奖：<span id="three">???</span></h5>
+  </div>
+  <script>
+    // 1.声明数组
+    const personArr = ['周杰伦', '刘德华', '周星驰', 'Pink老师', '张学友']
+    // 2. 先做一等奖
+    // 2.1 随机数 数组的下标
+    const random = Math.floor(Math.random() * personArr.length)
+    // console.log(personArr[random])
+    // 2.2 获取one 元素 
+    const one = document.querySelector('#one')
+    // 2.3 把名字给 one
+    one.innerHTML = personArr[random]
+    // 2.4 删除数组这个名字
+    personArr.splice(random, 1)
+    // console.log(personArr)
+
+
+    // 3. 二等奖
+    // 2.1 随机数 数组的下标
+    const random2 = Math.floor(Math.random() * personArr.length)
+    // console.log(personArr[random])
+    // 2.2 获取one 元素 
+    const two = document.querySelector('#two')
+    // 2.3 把名字给 one
+    two.innerHTML = personArr[random2]
+    // 2.4 删除数组这个名字
+    personArr.splice(random2, 1)
+
+    // 4. 三等奖
+    // 2.1 随机数 数组的下标
+    const random3 = Math.floor(Math.random() * personArr.length)
+    // console.log(personArr[random])
+    // 2.2 获取one 元素 
+    const three = document.querySelector('#three')
+    // 2.3 把名字给 one
+    three.innerHTML = personArr[random3]
+    // 2.4 删除数组这个名字
+    personArr.splice(random3, 1)
+  </script>
+</body>
+
+</html>
+  ```
+
+## 操作元素属性 
 
 有3种方式可以实现对属性的修改：
 

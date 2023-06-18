@@ -158,7 +158,19 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 </body>
 ~~~
 
+#### 面试题怎么实现深拷贝
+
+1. 深拷贝拷贝出来的对象不会影响新对象,通过递归实现深拷贝
+2. 在普通拷贝时可以直接赋值,但是在拷贝时遇到数组,需要递归拷贝,再次调用这个递归函数就可以了
+3. 如果遇到对象,也需要递归拷贝,再次调用这个递归函数就可以了
+
+**注意：**先拷贝数组，再拷贝对象，不能颠倒
+
 #### js库lodash里面cloneDeep内部实现了深拷贝
+
+lodash是一个js库，提供了很多js常用的方法，cloneDeep就是其中一个方法，用来实现深拷贝
+
+lodash官网：https://www.lodashjs.com/
 
 ~~~html
 <body>
@@ -224,7 +236,7 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 
     if(!x || !y) {
       // throw '参数不能为空!';
-      throw new Error('参数不能为空!')
+      throw new Error('参数不能为空!')  // Error 对象配合 throw 使用，能够设置更详细的错误信息
     }
 
     return x + y
@@ -243,7 +255,9 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 ### try ... catch
 
 ```html
-  <script>
+<body>
+  <p>123</p>
+    <script>
     function fn() {
       try {
         // 可能发送错误的代码 要写到 try
@@ -264,6 +278,7 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
     }
     fn()
   </script>
+</body>
 ```
 
 总结：
@@ -271,7 +286,7 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 1. `try...catch` 用于捕获错误信息
 2. 将预估可能发生错误的代码写在 `try` 代码段中
 3. 如果 `try` 代码段中出现错误后，会执行 `catch` 代码段，并截获到错误信息
-
+4. `finally` 代码段中的代码不管 `try` 代码段中的代码是否出错，都会执行
 
 ### debugger
 
@@ -291,11 +306,11 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 <script>
   // 普通函数
   function sayHi() {
-    console.log(this)  
+    console.log(this)  // window 
   }
   // 函数表达式
   const sayHello = function () {
-    console.log(this)
+    console.log(this)   // window
   }
   // 函数的调用方式决定了 this 的值
   sayHi() // window
@@ -306,7 +321,7 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
   const user = {
     name: '小明',
     walk: function () {
-      console.log(this)
+      console.log(this) // user
     }
   }
   // 动态为 user 添加方法
@@ -358,129 +373,6 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 </html>
 ```
 
-#### call
-
-`call` 方法可以动态的指定函数中 `this` 的值，`call` 方法的第一个参数就是 `this` 的值，后面的参数是函数执行时的参数。
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-
-<body>
-  <script>
-    const obj = {
-      uname: 'pink'
-    }
-    function fn(x, y) {
-      console.log(this) // window
-      console.log(x + y)
-    }
-    // 1. 调用函数  
-    // 2. 改变 this 指向
-    fn.call(obj, 1, 2)
-  </script>
-</body>
-
-</html>
-```
-
-#### apply
-
-`apply` 方法与 `call` 方法的作用一致，只是传参方式不同，`apply` 方法的第一个参数也是 `this` 的值，第二个参数是一个数组，数组中的元素是函数执行时的参数。
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-
-<body>
-  <script>
-    const obj = {
-      age: 18
-    }
-    function fn(x, y) {
-      console.log(this) // {age: 18}
-      console.log(x + y)
-    }
-    // 1. 调用函数
-    // 2. 改变this指向 
-    //  fn.apply(this指向谁, 数组参数)
-    fn.apply(obj, [1, 2])
-    // 3. 返回值   本身就是在调用函数，所以返回值就是函数的返回值
-
-    // 使用场景： 求数组最大值
-    // const max = Math.max(1, 2, 3)
-    // console.log(max)
-    const arr = [100, 44, 77]
-    const max = Math.max.apply(Math, arr)
-    const min = Math.min.apply(null, arr)
-    console.log(max, min)
-    // 使用场景： 求数组最大值
-    console.log(Math.max(...arr))
-  </script>
-</body>
-
-</html>
-```
-
-#### bind
-
-`bind` 方法与 `call` 方法的作用一致，只是 `bind` 方法不会立即调用函数，而是返回一个新的函数，新函数中的 `this` 值已经被绑定，后面的参数是函数执行时的参数。
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-
-<body>
-  <script>
-    const obj = {
-      age: 18
-    }
-    function fn(x, y) {
-      console.log(this) // {age: 18}
-      console.log(x + y)
-    }
-    // 1. 调用函数
-    // 2. 改变this指向 
-    //  fn.apply(this指向谁, 数组参数)
-    fn.apply(obj, [1, 2])
-    // 3. 返回值   本身就是在调用函数，所以返回值就是函数的返回值
-
-    // 使用场景： 求数组最大值
-    // const max = Math.max(1, 2, 3)
-    // console.log(max)
-    const arr = [100, 44, 77]
-    const max = Math.max.apply(Math, arr)
-    const min = Math.min.apply(null, arr)
-    console.log(max, min)
-    // 使用场景： 求数组最大值
-    console.log(Math.max(...arr))
-  </script>
-</body>
-
-</html>
-```
-
 
 注： 普通函数没有明确调用者时 `this` 值为 `window`，严格模式下没有调用者时 `this` 的值为 `undefined`。
 
@@ -492,7 +384,7 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 <script>
     
   console.log(this) // 此处为 window
-  // 箭头函数
+  // 箭头函数 
   const sayHi = function() {
     console.log(this) // 该箭头函数中的 this 为函数声明环境中 this 一致
   }
@@ -558,6 +450,16 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
   p1.walk()
 </script>
 ```
+
+### 箭头函数总结
+
+1. 箭头函数内不存在this时，沿用上一级的
+2. 不适用
+> 构造函数,原型函数,dom事件函数等等
+
+3. 适用
+> 普通函数,对象方法函数,闭包函数,需要使用上一层this的地方等等
+
 
 ### 改变this指向
 
@@ -669,15 +571,342 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 
 注：`bind` 方法创建新的函数，与原函数的唯一的变化是改变了 `this` 的值。
 
-## 防抖节流
+#### call
+
+`call` 方法可以动态的指定函数中 `this` 的值，`call` 方法的第一个参数就是 `this` 的值，后面的参数是函数执行时的参数。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const obj = {
+      uname: 'pink'
+    }
+    function fn(x, y) {
+      console.log(this) // window
+      console.log(x + y)
+    }
+    // 1. 调用函数  
+    // 2. 改变 this 指向
+    fn.call(obj, 1, 2)
+  </script>
+</body>
+
+</html>
+```
+
+#### apply
+
+`apply` 方法与 `call` 方法的作用一致，只是传参方式不同，`apply` 方法的第一个参数也是 `this` 的值，第二个参数是一个数组，数组中的元素是函数执行时的参数。
+
+语法：
+
+```js
+fn.apply(thisArg, [argsArray])
+```
+
+>thisArg：必选项，函数执行时的 `this` 的值
+>argsArray：可选项，数组，函数执行时的参数,传递的参数必须包含在数组里
+>返回值：函数的返回值,因为是调用函数，所以返回值就是函数的返回值
+>因此apply主要跟数组有关系,比如使用Math.max求最大值
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const obj = {
+      age: 18
+    }
+    function fn(x, y) {
+      console.log(this) // {age: 18}
+      console.log(x + y)
+    }
+    // 1. 调用函数
+    // 2. 改变this指向 
+    //  fn.apply(this指向谁, 数组参数)
+    fn.apply(obj, [1, 2])
+    // 3. 返回值   本身就是在调用函数，所以返回值就是函数的返回值
+
+    // 使用场景： 求数组最大值
+    // const max = Math.max(1, 2, 3)
+    // console.log(max)
+    const arr = [100, 44, 77]
+    const max = Math.max.apply(Math, arr)
+    const min = Math.min.apply(null, arr)
+    console.log(max, min)
+    // 使用场景： 求数组最大值
+    console.log(Math.max(...arr))
+  </script>
+</body>
+
+</html>
+```
+
+#### bind(重点)
+
+`bind` 方法与 `call` 方法的作用一致，只是 `bind` 方法不会立即调用函数，而是返回一个新的函数，新函数中的 `this` 值已经被绑定，后面的参数是函数执行时的参数。
+
+语法：
+
+```js
+fn.bind(thisArg, agr1,agr2)
+```
+
+>bind()方法不会调用函数,但是能改变this指向
+>thisArg：必选项，函数执行时的 `this` 的值
+>agr1,agr2：可选项，函数执行时的参数,传递的其他参数
+>返回由指定的this值和初始化参数改造的 原函数拷贝 (新函数)
+>因此如果我们只想改变this的指向,不想调用函数时,就可以使用bind,比如改变定时器中的this指向
+
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <button>发送短信</button>
+  <script>
+    const obj = {
+      age: 18
+    }
+    function fn() {
+      console.log(this)
+    }
+
+    // 1. bind 不会调用函数 
+    // 2. 能改变this指向
+    // 3. 返回值是个函数，  但是这个函数里面的this是更改过的obj
+    const fun = fn.bind(obj)
+    // console.log(fun) 
+    fun()
+
+    // 需求，有一个按钮，点击里面就禁用，2秒钟之后开启
+    document.querySelector('button').addEventListener('click', function () {
+      // 禁用按钮
+      this.disabled = true
+      window.setTimeout(function () {
+        // 在这个普通函数里面，我们要this由原来的window 改为 btn
+        this.disabled = false
+      }.bind(this), 2000)   // 这里的this 和 btn 一样
+    })
+  </script>
+</body>
+
+</html>
+```
+#### call apply bind 总结
+
+1. 相同点
+
+都可以改变函数内部this指向
+
+2. 区别
+
+a. call和apply会调用函数,并改变函数内部的this指向
+
+b. call和apply传递的参数不同,call传递aru1,aru2,apply传递的参数必须是数组形式
+
+c. bind不会调用函数,可以改变函数内部this的指向
+
+3. 应用场景
+
+a. call调用函数并且可以传递参数
+
+b. apply经常和数组有关系,比如借助于数学对象,求数组中的最大值
+
+c. bind不调用函数,但是可以改变函数内部的this指向,比如改变定时器内部的this指向
+
+## 防抖
 
 1. 防抖（debounce）
-所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间
-2. 节流（throttle）
-所谓节流，就是指连续触发事件但是在 n 秒中只执行一次函数
+所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间(例如：王者荣耀回城,只要被打断就需要重新执行)
+
+>应用场景
+a. 搜索框输入,只需用户最后一次输入完,再发送请求。
+b. 手机号,邮箱验证输入检测
+
+### 手写防抖函数(实现鼠标经过盒子显示文字)
+
+要求：鼠标停止500ms之后,里面的数字+1
+
+核心思路：
+防抖函数的核心是定时器(setTimeout)实现
+
+a. 声明一个定时器变量
+b. 当鼠标每次滑动都先判断定时器是否存在,如果存在就清除定时器
+c. 如果没有定时器,就创建一个定时器,存到定时器变量中
+d. 在定时器中执行函数,并且清除定时器
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+    .box {
+      width: 500px;
+      height: 500px;
+      background-color: #ccc;
+      color: #fff;
+      text-align: center;
+      font-size: 100px;
+    }
+    </style>
+</head>
+<body>
+    <div class="box">
+        
+    </div>
+    <script>
+        const box = document.querySelector(".box");
+        let i = 1;
+        function movemover(){
+            box.innerHTML = i++;
+        }
+        function debounce(fn,t){
+            let timer = null; //定时器
+            return function(){
+                if(timer){
+                    clearTimeout(timer) //清除定时器
+                }
+                timer = setTimeout(function(){
+                    fn();
+                },t)
+            }
+        }
+        box.addEventListener("mousemove",debounce(movemover,500));
+    </script>
+</body>
+</html>
+```
 
 
-### 节流防抖素材
+
+## 节流（throttle）
+
+所谓节流，就是指连续触发事件但是在 n 秒中只执行一次函数(单位时间内频繁触发,但是只执行一次)
+
+使用场景：
+a. 滚动条事件(scroll),加载更多或滚到底部监听
+b. 鼠标移动(mousemove)
+c. 页面尺寸缩放
+
+
+### 手写节流函数(实现鼠标经过盒子显示文字)
+
+
+要求：鼠标移动的时候,不管移动多快,每隔500ms,里面的数字+1
+
+核心思路：
+节流函数的核心是定时器(setTimeout)实现
+
+a. 声明一个定时器变量
+b. 当鼠标每次滑动都先判断定时器是否存在,如果存在就不开启新定时器
+c. 如果没有定时器,就创建一个定时器,存到定时器变量中 把定时器存放到定时器变量中(在定时器里调用要执行的函数,还要记得把定时器清空)
+
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+    .box {
+      width: 500px;
+      height: 500px;
+      background-color: #ccc;
+      color: #fff;
+      text-align: center;
+      font-size: 100px;
+    }
+    </style>
+</head>
+<body>
+    <div class="box">
+        
+    </div>
+    <script>
+        const box = document.querySelector(".box");
+        let i = 1;
+        function movemover(){
+            box.innerHTML = i++;
+        }
+        function throttle (fn,t){
+            let timer = null; //定时器
+            return function(){
+                if(!timer){
+                  timer = setTimeout(function(){
+                    fn();
+                    timer = null;
+                  },t)
+                }
+            }
+        }
+        box.addEventListener("mousemove",throttle(movemover,500));
+    </script>
+</body>
+</html>
+```
+
+#### 清除定时器问题
+
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let timer = null;
+        timer = setTimeout(function(){
+            clearTimeout(timer);
+            console.log(timer);
+        },1000)
+
+        // 在定时器执行中是无法删除定时器的,因为定时器还在运作中,在定时器中清除定时器使用的是 timer = null;而不是 clearTimeout(timer);  
+    </script>
+</body>
+</html>
+```
+
+### 节流小案例
+
 
 ```html
 <!DOCTYPE html>
@@ -750,7 +979,9 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 </html>
 ```
 
-### 防抖小案例
+
+
+### 防抖小案例(手写)
 
 ```html
 <!DOCTYPE html>
@@ -804,7 +1035,7 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 </html>
 ```
 
-### lodash节流和防·
+### lodash节流和防抖
 
 ```html
 <!DOCTYPE html>
@@ -945,7 +1176,5 @@ b.如果对象中的属性是引用数据类型，修改拷贝之后的对象，
 
 </html>
 ```
-
-
 
 
