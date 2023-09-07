@@ -1127,7 +1127,7 @@ new Vue({
 
 3. src/App.vue
 
-```vue
+```js
 <template>
 	<div>
 		<br>
