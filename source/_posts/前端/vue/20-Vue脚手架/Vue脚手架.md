@@ -1075,6 +1075,15 @@ module.exports = {
    1. 地址干净，美观 。
    2. 兼容性和hash模式相比略差。
    3. 应用部署上线时需要后端人员支持，解决刷新页面服务端404的问题。
+切换工作模式
+```js
+const router =  new VueRouter({
+	mode:'history',
+	routes:[...]
+})
+
+export default router
+```
 
 ## 14.Vue UI 组件库
 
@@ -1082,15 +1091,15 @@ module.exports = {
 
 #### 14.1.1 移动端常用UI组件库
 
-1. ![Vant](https://vant-ui.github.io/vant/#/zh-CN)
-2. ![Cube UI](https://didi.github.io/cube-ui/#/zh-CN)
-3. ![Mint UI](https://mint-ui.github.io/#!/zh-cn)
-4. ![https://nutui.jd.com/#/](https://nutui.jd.com/#/)
+1. [Vant](https://vant-ui.github.io/vant/#/zh-CN)
+2. [Cube UI](https://didi.github.io/cube-ui/#/zh-CN)
+3. [Mint UI](https://mint-ui.github.io/#!/zh-cn)
+4. [https://nutui.jd.com/#/](https://nutui.jd.com/#/)
 
 #### 14.1.2. PC端常用UI组件库
 
-1. ![Element UI](https://element.eleme.cn/#/zh-CN)
-2. ![IView UI](https://www.iviewui.com/)
+1. [Element UI](https://element.eleme.cn/#/zh-CN)
+2. [IView UI](https://www.iviewui.com/)
 
 ### 14.2. element-ui基本使用
 
