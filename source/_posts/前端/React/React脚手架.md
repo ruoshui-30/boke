@@ -5,7 +5,7 @@ date: 2023-10-26 14:44:18
 tags:
 ---
 
-## 第1章：React应用(基于React脚手架)
+## 🚀  第1章：React应用(基于React脚手架)
 
 ### 1.1 使用create-react-app创建react应用
 
@@ -295,4 +295,239 @@ axios.post('/user', { firstName: 'Fred', lastName: 'Flintstone' })
         - 配置稍微复杂。
         - 请求时必须加上特定的前缀。
 
+## 🚀  第3章：React路由
 
+### 3.1. 🧭 相关理解
+
+#### 3.1.1. 📄 SPA (单页Web应用)
+
+- **定义**：应用只有一个页面，所有功能在此页面内完成。
+- **特点**：点击链接时，不触发完整页面刷新，仅更新局部内容。
+- **数据加载**：数据通过Ajax异步获取并展示。
+
+#### 3.1.2. 🛣️ 路由理解
+
+- **定义**：路由是一个路径与功能的映射关系。
+    - **Key**: 路径
+    - **Value**: 函数或组件
+
+- **后端路由** 🖥️:
+    - **功能**: 用于处理客户端请求，返回数据或页面。
+    - **例子**: `router.get(path, function(req, res))`
+
+- **前端路由** 🌍:
+    - **功能**: 根据URL展示对应的组件，不请求新页面。
+    - **例子**: `<Route path="/test" component={Test}>`
+
+### 3.2. 🛠️ react-router-dom相关API
+
+#### 3.2.1. 🧱 内置组件
+
+1. `<BrowserRouter>`
+2. `<HashRouter>`
+3. `<Route>`
+4. `<Redirect>`
+5. `<Link>`
+6. `<NavLink>`
+7. `<Switch>`
+
+#### 3.2.2. 📜 其他
+
+- **history对象** 🕰️:
+    - Methods: `push`, `replace`, `go`, `goBack`, `goForward`
+
+- **match对象** 🎯:
+    - Details: `params`, `path`, `url`
+
+- **withRouter函数** 🔄: 高阶组件，使非路由组件能接收路由组件的三个属性。
+
+### 3.3. 🖇️ 路由基本使用
+
+1. **组织结构**：区分导航区与展示区。
+2. **导航链接**：使用`<Link to="/path">Demo</Link>`替代`<a>`标签。
+3. **展示区**：使用`<Route path='/path' component={Demo}/>`来匹配路径。
+4. **路由器包裹**：确保`<App>`外部有`<BrowserRouter>`或`<HashRouter>`包裹。
+
+### 3.4. 🚧 路由组件与一般组件
+
+1. **写法**:
+    - 一般组件: `<Demo/>`
+    - 路由组件: `<Route path="/demo" component={Demo}/>`
+
+2. **位置**:
+    - 一般组件: 在`components`文件夹中
+    - 路由组件: 在`pages`文件夹中
+
+3. **传递的props**:
+    - 一般组件: 传递什么就接收什么
+    - 路由组件: 默认接收三个属性：`history`, `location`, `match`
+
+### 3.5. 🕹️ 路由组件的特性
+
+#### 3.5.1. 📦 接收特定Props
+
+路由组件会自动接收三个props:
+
+- **history**:
+    - `push(path)`: 导航至新路径
+    - `replace(path)`: 替换当前路径
+    - `go(n)`: 前进/后退n个页面
+    - `goBack()`: 返回上一页
+    - `goForward()`: 前进到下一页
+
+- **location**:
+    - `pathname`: 当前URL的路径
+    - `search`: 查询参数字符串(如`?key=value`)
+    - `state`: 与`push`或`replace`方法一起使用的状态
+
+- **match**:
+    - `params`: 路径参数（如`/user/:id`）
+    - `path`: 用于匹配的路径模式
+    - `url`: 实际匹配的URL部分
+
+#### 3.5.2. 🔄 withRouter函数
+
+如果你需要在一个非路由组件中访问路由相关的props（如`history`，`location`和`match`），你可以使用`withRouter`高阶组件。这会将这些props注入到你的组件中。
+
+```javascript
+import { withRouter } from 'react-router-dom';
+
+function MyComponent(props) {
+    // 使用 props.history, props.location, props.match
+}
+
+export default withRouter(MyComponent);
+```
+
+#### 3.5.3. 🎨 路由样式与活动类
+
+使用`<NavLink>`来创建导航链接，它有一个特性：当链接的路径匹配当前的位置时，它可以自动应用"active"样式或类。这对于突出显示当前的活动链接很有用。
+
+```javascript
+<NavLink to="/home" activeClassName="active">Home</NavLink>
+```
+
+### 3.6. 🔐 路由守卫
+
+在某些场景下，你可能想要确保用户在导航到某个路由之前满足一定的条件（如已登录）。这通常称为路由守卫。
+
+一个简单的实现是使用React的条件渲染与`history`对象。例如，如果用户未登录，你可以重定向他们到登录页面。
+
+```javascript
+function PrivateRoute({ component: Component, ...rest }) {
+    return (
+        <Route
+            {...rest}
+            render={props =>
+                isAuthenticated() ? (
+                    <Component {...props} />
+                ) : (
+                    <Redirect to="/login" />
+                )
+            }
+        />
+    );
+}
+```
+
+### 3.7. 📘 NavLink与封装NavLink
+
+#### 3.7.1. 🚀 NavLink基础使用
+
+`NavLink` 是 `react-router-dom` 中的一个特殊组件，它提供了与当前URL匹配时自动应用样式的功能。
+
+🔍 **主要特点**:
+- 当与当前路由匹配时，可以为链接自动添加一个"活跃"样式或类。
+- 默认活跃类名为 `active`，但可以通过 `activeClassName` 属性来自定义。
+- 标签体内容是一个特殊的标签属性
+- 通过this.props.children可以获取标签体内容
+
+
+🎨 **例子**:
+```css
+/* styles.css */
+.active-link {
+    color: red;
+    font-weight: bold;
+}
+```
+使用 `NavLink`:
+```javascript
+import { NavLink } from 'react-router-dom';
+import './styles.css';
+
+function Navigation() {
+    return (
+        <nav>
+            <NavLink to="/home" activeClassName="active-link">Home</NavLink>
+            <NavLink to="/about" activeClassName="active-link">About</NavLink>
+        </nav>
+    );
+}
+```
+
+#### 3.7.2. 🎁 封装NavLink
+
+封装 `NavLink` 可以让我们为所有的链接提供一致的界面和行为。
+
+🛠️ **自定义NavLink类组件**:
+```javascript
+import React from 'react';
+import { NavLink as OriginalNavLink } from 'react-router-dom';
+import './styles.css';
+
+class CustomNavLink extends React.Component {
+    render() {
+        return (
+            <OriginalNavLink {...this.props} activeClassName="active-link">
+                {this.props.children}
+            </OriginalNavLink>
+        );
+    }
+}
+
+export default CustomNavLink;
+```
+
+🌟 **使用CustomNavLink**:
+```javascript
+import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import CustomNavLink from './CustomNavLink';
+
+class Navigation extends React.Component {
+    render() {
+        return (
+            <BrowserRouter>
+                <nav>
+                    <CustomNavLink to="/home">Home</CustomNavLink>
+                    <CustomNavLink to="/about">About</CustomNavLink>
+                </nav>
+            </BrowserRouter>
+        );
+    }
+}
+
+export default Navigation;
+```
+
+这样，`CustomNavLink` 提供了一个一致的界面和行为，使得代码更加整洁和一致。
+
+### 3.8 🌠 Switch的使用
+
+1. 通常情况下，path和component是一一对应的关系。
+2. Switch可以提高路由匹配效率(单一匹配)。
+
+先导入`Switch`,再将需要提高效率的组件用`<Switch><Switch/>`包裹起来
+
+### 3.9. 🌌 解决多级路径刷新页面样式丢失的问题
+
+1. `public/index.html` 中 引入样式时不写 `./` 写 `/` （常用）
+2. `public/index.html` 中 引入样式时不写 `./` 写 `%PUBLIC_URL%` （常用）它指的是`public`文件下的文件，绝对路径。
+3. 使用`HashRouter`路由
+
+### 3.10. 🌜 路由的严格匹配与模糊匹配
+
+1. 默认使用的是模糊匹配（简单记：【输入的路径】必须包含要【匹配的路径】，且顺序要一致）
+2. 开启严格匹配：`<Route exact={true} path="/about" component={About}/>`
+3. 严格匹配不要随便开启，需要再开，有些时候开启会导致无法继续匹配二级路由
