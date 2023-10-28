@@ -598,17 +598,97 @@ export default class Home extends Component {
 
 **路由链接 (携带参数)：**
 ```jsx
-<Link to='/demo/test/tom/18'>详情</Link>
+<li key={obj.id}>
+    {/* 向路由传递parmas参数 */}
+    <Link href='XXXXX' to={`/home/message/datail/${obj.id}/${obj.title}`}>title: {obj.title}</Link>
+</li>
 ```
 
 **注册路由 (声明接收)：**
 ```jsx
-<Route path="/demo/test/:name/:age" component={Test}/>
+{/* 声明接收parmas参数 */}
+<Route path="/home/message/datail/:id/:title" component={Datail}></Route>
 ```
 
 **接收参数：**
 ```javascript
-this.props.match.params
+// 接收parmas参数
+const {id,title}=this.props.match.params
+```
+
+*Message组件传递`parmas`和声明接收`parmas`参数*
+
+```js
+import React, { Component } from 'react'
+import { Link ,Route} from 'react-router-dom/cjs/react-router-dom'
+import Datail from './Datail'
+export default class Message extends Component {
+  state={
+    MessArray:[
+      {id:"01",title:"消息1"},
+      {id:"02",title:"消息2"},
+      {id:"03",title:"消息3"},
+    ]
+  }
+  render() {
+    const {MessArray} = this.state
+    return (
+      <div>
+        <ul>
+          {
+            MessArray.map((obj)=>{
+              return (
+                <li key={obj.id}>
+                  {/* 向路由传递parmas参数 */}
+                  <Link href='XXXXX' to={`/home/message/datail/${obj.id}/${obj.title}`}>title: {obj.title}</Link>
+                </li>
+              )
+            })
+          }
+        </ul>
+        <hr></hr>
+        {/* 声明接收parmas参数 */}
+        <Route path="/home/message/datail/:id/:title" component={Datail}></Route>
+      </div>
+    )
+  }
+}
+
+```
+
+*Datail组件接受`parmas`参数*
+
+`this.props`打印输出结果
+
+![](../../../img/react/learn/7.png)
+
+```js
+import React, { Component } from 'react'
+const data = [
+    {id: '01' ,content: '你好，中国'},
+    {id: '02',content:'你好，尚硅谷'},
+    {id: '03' ,content:'你好，未来的自己！！！'}
+]
+    
+export default class Datail  extends Component {
+  render() {
+    console.log(this.props)
+    // 接收parmas参数
+    const {id,title}=this.props.match.params
+    const findReact = data.find((obj)=>{
+        return obj.id===id
+    })
+    return (
+      <div>
+        <ul>
+            <li>id: {id}</li>
+            <li>题目: {title}</li>
+            <li>内容: {findReact.content}</li>
+        </ul>
+      </div>
+    )
+  }
+}
 ```
 
 **2.`search` 参数**
