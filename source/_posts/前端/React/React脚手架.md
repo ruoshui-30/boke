@@ -520,6 +520,13 @@ export default Navigation;
 
 先导入`Switch`,再将需要提高效率的组件用`<Switch><Switch/>`包裹起来
 
+```html
+      <Switch>
+       <Route path="/about" component={About}/>
+       <Route path="/home" component={Home}/>
+      </Switch>
+```
+
 ### 3.9. 🌌 解决多级路径刷新页面样式丢失的问题
 
 1. `public/index.html` 中 引入样式时不写 `./` 写 `/` （常用）
@@ -531,3 +538,204 @@ export default Navigation;
 1. 默认使用的是模糊匹配（简单记：【输入的路径】必须包含要【匹配的路径】，且顺序要一致）
 2. 开启严格匹配：`<Route exact={true} path="/about" component={About}/>`
 3. 严格匹配不要随便开启，需要再开，有些时候开启会导致无法继续匹配二级路由
+
+### 3.11. 🌜 Redirect的使用
+
+1. 一般写在所有路由注册的最下方，当所有路由都无法匹配时，跳转到Redirect指定的路由
+
+2. 具体编码：
+
+```html
+      <Switch>
+       <Route path="/about" component={About}/>
+       <Route path="/home" component={Home}/>
+       <Redirect to="/about"/>
+      </Switch>
+```
+
+### 3.12 🌛 嵌套路由
+
+1. 注册子路由时要写上父路由的path值
+2. 路由的匹配是按照注册路由的顺序进行的
+
+```js
+import React, { Component } from 'react'
+import {Route,Switch} from 'react-router-dom/cjs/react-router-dom'
+import Mylink from '../Mylink'
+import News from './News'
+import Message from './Message'
+export default class Home extends Component {
+  render() {
+    return (
+      <div>
+        <h2>这里是Home内容</h2>
+        <ul className="nav nav-tabs">
+              <li>
+              <Mylink to="/home/news">news</Mylink>
+              </li>
+              <li>
+              <Mylink to="message">message</Mylink>
+              </li>
+        </ul>
+        {/* 注册路由 */}
+        {/* <News></News>
+        <Message></Message> */}
+        <Switch>
+        <Route path="/home/news" component={News}></Route>
+        <Route path="/home/message" component={Message}></Route>
+        </Switch>
+      </div>
+    )
+  }
+}
+```
+
+### 3.11 🌛 向路由组件传递参数
+
+传递参数到路由组件的方法有三种：
+
+**1.`params` 参数**
+
+**路由链接 (携带参数)：**
+```jsx
+<Link to='/demo/test/tom/18'>详情</Link>
+```
+
+**注册路由 (声明接收)：**
+```jsx
+<Route path="/demo/test/:name/:age" component={Test}/>
+```
+
+**接收参数：**
+```javascript
+this.props.match.params
+```
+
+**2.`search` 参数**
+
+**路由链接 (携带参数)：**
+```jsx
+<Link to='/demo/test?name=tom&age=18'>详情</Link>
+```
+
+**注册路由 (无需声明，正常注册即可)：**
+```jsx
+<Route path="/demo/test" component={Test}/>
+```
+
+**接收参数：**
+```javascript
+this.props.location.search
+```
+
+**备注：**
+获取到的 `search` 是urlencoded编码字符串，需要借助 `querystring` 解析。
+
+**3.`state` 参数**
+
+**路由链接 (携带参数)：**
+```jsx
+<Link to={{pathname:'/demo/test',state:{name:'tom',age:18}}}>详情</Link>
+```
+
+**注册路由 (无需声明，正常注册即可)：**
+```jsx
+<Route path="/demo/test" component={Test}/>
+```
+
+**接收参数：**
+```javascript
+this.props.location.state
+```
+
+**备注：**
+刷新也可以保留住参数。
+
+### 3.12 🌛 编程式路由导航
+
+使用 `this.props.history` 对象上的 API 来操作路由跳转、前进和后退。
+
+- **路由跳转：** 
+  ```javascript
+  this.props.history.push()
+  ```
+
+- **替换当前路由：** 
+  ```javascript
+  this.props.history.replace()
+  ```
+
+- **后退：** 
+  ```javascript
+  this.props.history.goBack()
+  ```
+
+- **前进：** 
+  ```javascript
+  this.props.history.goForward()
+  ```
+
+- **前进/后退到指定页面：** 
+  ```javascript
+  this.props.history.go()
+  ```
+
+### 3.13 🌛 BrowserRouter与HashRouter的区别
+
+**1.底层原理:**
+
+- **BrowserRouter**: 使用H5的history API，不兼容IE9及以下版本。
+- **HashRouter**: 使用URL的哈希值。
+
+**2.路径表现形式:**
+
+- **BrowserRouter**: 路径中没有#, 例如：`localhost:3000/demo/test`
+- **HashRouter**: 路径包含#, 例如：`localhost:3000/#/demo/test`
+
+**3.刷新对路由`state`参数的影响:**
+
+- **BrowserRouter**: 没有任何影响，因为`state`保存在history对象中。
+- **HashRouter**: 刷新后会导致路由`state`参数的丢失。
+
+**备注:**
+HashRouter可以用于解决一些路径错误相关的问题。
+
+### 3.14 🌛 antd的按需引入+自定义主题
+
+1. **安装依赖**:
+```bash
+npm i react-app-rewired customize-cra babel-plugin-import less less-loader
+```
+
+2. **修改`package.json`**:
+```json
+"scripts": {
+	"start": "react-app-rewired start",
+	"build": "react-app-rewired build",
+	"test": "react-app-rewired test",
+	"eject": "react-scripts eject"
+}
+```
+
+3. **在根目录下创建`config-overrides.js`**:
+```javascript
+// 配置具体的修改规则
+const { override, fixBabelImports, addLessLoader } = require('customize-cra');
+
+module.exports = override(
+	fixBabelImports('import', {
+		libraryName: 'antd',
+		libraryDirectory: 'es',
+		style: true,
+	}),
+	addLessLoader({
+		lessOptions: {
+			javascriptEnabled: true,
+			modifyVars: { '@primary-color': 'green' },
+		}
+	}),
+);
+```
+
+4. **备注**:
+不再需要在组件里手动引入样式，即 `import 'antd/dist/antd.css'` 应当被移除。
