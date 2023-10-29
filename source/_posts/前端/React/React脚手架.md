@@ -1121,7 +1121,17 @@ HashRouter可以用于解决一些路径错误相关的问题。
 - **官网:** [https://ant.design/index-cn](https://ant.design/index-cn)
 - **GitHub:** [https://github.com/ant-design/ant-design/](https://github.com/ant-design/ant-design/)
 
-### 1. 🌛 antd的按需引入+自定义主题
+### 1. 🌛 antd UI库的基本使用
+
+例如：`<button></button>`按钮的使用,需要`antd.css`
+
+
+```js
+import {Button}from 'antd';
+import 'antd/dist/antd.css' //引入样式
+```
+
+### 2. 🌛 antd的按需引入+自定义主题
 
 1. **安装依赖**:
 ```bash
@@ -1131,10 +1141,10 @@ npm i react-app-rewired customize-cra babel-plugin-import less less-loader
 2. **修改`package.json`**:
 ```json
 "scripts": {
-	"start": "react-app-rewired start",
-	"build": "react-app-rewired build",
-	"test": "react-app-rewired test",
-	"eject": "react-scripts eject"
+  "start": "react-app-rewired start",
+  "build": "react-app-rewired build",
+  "test": "react-app-rewired test",
+  "eject": "react-scripts eject"
 }
 ```
 
@@ -1144,17 +1154,17 @@ npm i react-app-rewired customize-cra babel-plugin-import less less-loader
 const { override, fixBabelImports, addLessLoader } = require('customize-cra');
 
 module.exports = override(
-	fixBabelImports('import', {
-		libraryName: 'antd',
-		libraryDirectory: 'es',
-		style: true,
-	}),
-	addLessLoader({
-		lessOptions: {
-			javascriptEnabled: true,
-			modifyVars: { '@primary-color': 'green' },
-		}
-	}),
+ fixBabelImports('import', {
+  libraryName: 'antd',
+  libraryDirectory: 'es',
+  style: true,
+ }),
+ addLessLoader({
+  lessOptions: {
+   javascriptEnabled: true,
+   modifyVars: { '@primary-color': 'green' },
+  }
+ }),
 );
 ```
 
