@@ -2,7 +2,11 @@
 title: React脚手架
 abbrlink: 3126488542
 date: 2023-10-26 14:44:18
-tags:
+categories:
+  - 前端
+  - React
+  - React脚手架
+tags: React脚手架
 ---
 
 ## 🚀  第1章：React应用
