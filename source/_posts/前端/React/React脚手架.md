@@ -590,7 +590,7 @@ export default class Home extends Component {
 }
 ```
 
-### 3.11 🌛 向路由组件传递参数
+### 3.13 🌛 向路由组件传递参数
 
 传递参数到路由组件的方法有三种：
 
@@ -708,8 +708,115 @@ export default class Datail  extends Component {
 this.props.location.search
 ```
 
+*Message组件传递`search`和声明接收`search`参数*
+
+```js
+import React, { Component } from 'react'
+import { Link ,Route} from 'react-router-dom/cjs/react-router-dom'
+import Datail from './Datail'
+export default class Message extends Component {
+  state={
+    MessArray:[
+      {id:"01",title:"消息1"},
+      {id:"02",title:"消息2"},
+      {id:"03",title:"消息3"},
+    ]
+  }
+  render() {
+    const {MessArray} = this.state
+    return (
+      <div>
+        <ul>
+          {
+            MessArray.map((obj)=>{
+              return (
+                <li key={obj.id}>
+                  {/* 向路由传递search参数 */}
+                  <Link href='XXXXX' to={`/home/message/datail/?id=${obj.id}&title=${obj.title}`}>title: {obj.title}</Link>
+                </li>
+              )
+            })
+          }
+        </ul>
+        <hr></hr>
+        {/* search参数无需声明接收，正常注册路由即可 */}
+        <Route path="/home/message/datail" component={Datail}></Route>
+      </div>
+    )
+  }
+}
+```
+
+*Datail组件接受`search`参数*
+
+`this.props`打印输出结果
+
+![](../../../img/react/learn/6.png)
+
+```js
+import React, { Component } from 'react'
+import qs from 'qs'
+const data = [
+    {id: '01' ,content: '你好，中国'},
+    {id: '02',content:'你好，尚硅谷'},
+    {id: '03' ,content:'你好，未来的自己！！！'}
+]
+    
+export default class Datail  extends Component {
+  render() {
+    // 接收search参数
+    console.log(this.props);
+    const {search} = this.props.location
+    const {id,title}=qs.parse(search.slice(1))
+    const findReact = data.find((obj)=>{
+        return obj.id===id
+    })
+    return (
+      <div>
+        <ul>
+            <li>id: {id}</li>
+            <li>题目: {title}</li>
+            <li>内容: {findReact.content}</li>
+        </ul>
+      </div>
+    )
+  }
+}
+```
+
+
 **备注：**
-获取到的 `search` 是urlencoded编码字符串，需要借助 `querystring` 解析。
+获取到的 `search` 是urlencoded编码字符串，需要借助 `qs` 解析。
+
+当我们从URL中获取到的`search`参数是一个urlencoded编码的字符串，我们可以使用`qs`库来解析和格式化这些字符串。`qs`库中主要的两个方法是：
+
+1. **`qs.parse()`**: 这个方法用于解析URL查询字符串（`search`参数）并将其转换为一个对象。
+
+   **例子**:
+   
+   ```javascript
+   import qs from 'qs';
+
+   const search = "?name=tom&age=18";
+   const parsed = qs.parse(search, { ignoreQueryPrefix: true });
+   console.log(parsed);  // 输出: { name: 'tom', age: '18' }
+   ```
+
+   注意：`ignoreQueryPrefix`选项用于忽略查询字符串前面的`?`符号。
+
+2. **`qs.stringify()`**: 这个方法用于将一个对象转换为URL查询字符串。
+
+   **例子**:
+   
+   ```javascript
+   import qs from 'qs';
+
+   const obj = { name: 'tom', age: 18 };
+   const stringified = qs.stringify(obj);
+   console.log(stringified);  // 输出: "name=tom&age=18"
+   ```
+
+这两个方法非常有用，可以让你轻松地在URL查询字符串和JavaScript对象之间进行转换。
 
 **3.`state` 参数**
 
@@ -731,7 +838,84 @@ this.props.location.state
 **备注：**
 刷新也可以保留住参数。
 
-### 3.12 🌛 编程式路由导航
+*Message组件传递`state`和声明接收`state`参数*
+
+```js
+import React, { Component } from 'react'
+import { Link ,Route} from 'react-router-dom/cjs/react-router-dom'
+import Datail from './Datail'
+export default class Message extends Component {
+  state={
+    MessArray:[
+      {id:"01",title:"消息1"},
+      {id:"02",title:"消息2"},
+      {id:"03",title:"消息3"},
+    ]
+  }
+  render() {
+    const {MessArray} = this.state
+    return (
+      <div>
+        <ul>
+          {
+            MessArray.map((obj)=>{
+              return (
+                <li key={obj.id}>
+                  {/* 向路由传递state参数,需要将to写成对象的形式 */}
+                  <Link href='xxx' to={{pathname:'/home/message/datail',state:{id:obj.id,title:obj.title}}}>title: {obj.title}</Link>
+                </li>
+              )
+            })
+          }
+        </ul>
+        <hr></hr>
+        {/* state参数无需声明接收，正常注册路由即可 */}
+        <Route path="/home/message/datail" component={Datail}></Route>
+      </div>
+    )
+  }
+}
+
+```
+
+*Datail组件接受`state`参数*
+
+`this.props`打印输出结果
+
+![](../../../img/react/learn/8.png)
+
+```js
+import React, { Component } from 'react'
+const data = [
+    {id: '01' ,content: '你好，中国'},
+    {id: '02',content:'你好，尚硅谷'},
+    {id: '03' ,content:'你好，未来的自己！！！'}
+]
+    
+export default class Datail  extends Component {
+  render() {
+    // 接收state参数
+    console.log(this.props);
+    //对state解构赋值
+    const {id,title} = this.props.location.state || {}
+    const findReact = data.find((obj)=>{
+        return obj.id===id
+    }) || {}
+    return (
+      <div>
+        <ul>
+            <li>id: {id}</li>
+            <li>题目: {title}</li>
+            <li>内容: {findReact.content}</li>
+        </ul>
+      </div>
+    )
+  }
+}
+
+```
+
+### 3.14🌛 编程式路由导航
 
 使用 `this.props.history` 对象上的 API 来操作路由跳转、前进和后退。
 
@@ -742,8 +926,11 @@ this.props.location.state
 
 - **替换当前路由：** 
   ```javascript
-  this.props.history.replace()
+  <!-- this.props.history.replace() -->
+  <!-- 应用 -->
+  <Link replace={true} href='xxx' to={{pathname:'/home/message/datail',state:{id:obj.id,title:obj.title}}}>title: {obj.title}</Link>
   ```
+
 
 - **后退：** 
   ```javascript
@@ -760,7 +947,145 @@ this.props.location.state
   this.props.history.go()
   ```
 
-### 3.13 🌛 BrowserRouter与HashRouter的区别
+**案例：**
+
+```js
+import React, { Component } from 'react'
+import {Link,Route} from 'react-router-dom'
+import Detail from './Detail'
+
+export default class Message extends Component {
+ state = {
+  messageArr:[
+   {id:'01',title:'消息1'},
+   {id:'02',title:'消息2'},
+   {id:'03',title:'消息3'},
+  ]
+ }
+
+ replaceShow = (id,title)=>{
+  //replace跳转+携带params参数
+  //this.props.history.replace(`/home/message/detail/${id}/${title}`)
+
+  //replace跳转+携带search参数
+  // this.props.history.replace(`/home/message/detail?id=${id}&title=${title}`)
+
+  //replace跳转+携带state参数
+  this.props.history.replace(`/home/message/detail`,{id,title})
+ }
+
+ pushShow = (id,title)=>{
+  //push跳转+携带params参数
+  // this.props.history.push(`/home/message/detail/${id}/${title}`)
+
+  //push跳转+携带search参数
+  // this.props.history.push(`/home/message/detail?id=${id}&title=${title}`)
+
+  //push跳转+携带state参数
+  this.props.history.push(`/home/message/detail`,{id,title})
+  
+ }
+
+ back = ()=>{
+  this.props.history.goBack()
+ }
+
+ forward = ()=>{
+  this.props.history.goForward()
+ }
+
+ go = ()=>{
+  this.props.history.go(-2)
+ }
+
+ render() {
+  const {messageArr} = this.state
+  return (
+   <div>
+    <ul>
+     {
+      messageArr.map((msgObj)=>{
+       return (
+        <li key={msgObj.id}>
+
+         {/* 向路由组件传递params参数 */}
+         {/* <Link to={`/home/message/detail/${msgObj.id}/${msgObj.title}`}>{msgObj.title}</Link> */}
+
+         {/* 向路由组件传递search参数 */}
+         {/* <Link to={`/home/message/detail/?id=${msgObj.id}&title=${msgObj.title}`}>{msgObj.title}</Link> */}
+
+         {/* 向路由组件传递state参数 */}
+         <Link to={{pathname:'/home/message/detail',state:{id:msgObj.id,title:msgObj.title}}}>{msgObj.title}</Link>
+
+         &nbsp;<button onClick={()=> this.pushShow(msgObj.id,msgObj.title)}>push查看 </button>
+         &nbsp;<button onClick={()=> this.replaceShow(msgObj.id,msgObj.title)}>replace查看</button>
+        </li>
+       )
+      })
+      }
+    </ul>
+    <hr/>
+    {/* 声明接收params参数 */}
+    {/* <Route path="/home/message/detail/:id/:title" component={Detail}/> */}
+
+    {/* search参数无需声明接收，正常注册路由即可 */}
+    {/* <Route path="/home/message/detail" component={Detail}/> */}
+
+    {/* state参数无需声明接收，正常注册路由即可 */}
+    <Route path="/home/message/detail" component={Detail}/>
+
+    <button onClick={this.back}>回退</button>&nbsp;
+    <button onClick={this.forward}>前进</button>&nbsp;
+    <button onClick={this.go}>go</button>
+
+   </div>
+  )
+ }
+}
+```
+
+### 3.17 🌛 withRouter的使用
+
+1. withRouter可以加工一般组件，让一般组件具备路由组件所特有的API
+2. withRouter的返回值是一个新组件
+
+*案例：*
+
+```js
+import React, { Component } from 'react'
+import {withRouter} from 'react-router-dom'
+
+class Header extends Component {
+
+ back = ()=>{
+  this.props.history.goBack()
+ }
+
+ forward = ()=>{
+  this.props.history.goForward()
+ }
+
+ go = ()=>{
+  this.props.history.go(-2)
+ }
+
+ render() {
+  console.log('Header组件收到的props是',this.props);
+  return (
+   <div className="page-header">
+    <h2>React Router Demo</h2>
+    <button onClick={this.back}>回退</button>&nbsp;
+    <button onClick={this.forward}>前进</button>&nbsp;
+    <button onClick={this.go}>go</button>
+   </div>
+  )
+ }
+}
+
+export default withRouter(Header)
+```
+
+### 3.16 🌛 BrowserRouter与HashRouter的区别
 
 **1.底层原理:**
 
@@ -780,7 +1105,7 @@ this.props.location.state
 **备注:**
 HashRouter可以用于解决一些路径错误相关的问题。
 
-### 3.14 🌛 antd的按需引入+自定义主题
+### 3.17 🌛 antd的按需引入+自定义主题
 
 1. **安装依赖**:
 ```bash
