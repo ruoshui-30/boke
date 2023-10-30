@@ -374,3 +374,101 @@ import { INCREMENT,DECREMENT} from './constant'
 export const createIncrementAction = data => ({type:INCREMENT,data})
 export const createDecrementAction = data => ({type:DECREMENT,data})
 ```
+
+## 📌 3.求和案例_redux异步action版
+
+1.明确：延迟的动作不想交给组件自身，想交给action
+
+2.何时需要异步action：想要对状态进行操作，但是具体的数据靠异步任务返回。
+
+3.具体编码：
+
++ yarn add redux-thunk，并配置在store中
++ 创建action的函数不再返回一般对象，而是一个函数，该函数中写异步任务。
++ 异步任务有结果后，分发一个同步的action去真正操作数据。
+
+*在`store.js`中配置*
+```js
+/* 
+	该文件专门用于暴露一个store对象，整个应用只有一个store对象
+*/
+//引入createStore，专门用于创建redux中最为核心的store对象
+// applyMiddleware用于执行中间件
+import { legacy_createStore as createStore,applyMiddleware} from 'redux'
+// 引入redux-thunk中间件,用于支持异步action
+import thunk from 'redux-thunk'
+//引入为Count组件服务的reducer
+import countReducer from './count_reducer'
+//暴露store
+export default createStore(countReducer,applyMiddleware(thunk))
+```
+
+*在`count_action.js`创建异步`action`*
+
+```js
+// 该文件专门为Count组件生成action对象
+import { INCREMENT,DECREMENT} from './constant'
+// 同步action，就是指action的值为Obiect类型的一般对象
+export const createIncrementAction = data => ({type:INCREMENT,data})
+export const createDecrementAction = data => ({type:DECREMENT,data})
+// 异步action，就是指action的值为函数,异步action中一般都会调用同步action,
+// 异步action不是必须要用的，也可以在组件中写定时器，实现异步action
+export const  createIncrementAsyncAction = (data,time)=>{
+    return (dispatch)=>{
+        setTimeout(()=>{
+            dispatch(createIncrementAction(data))
+        },time)
+    } 
+}
+```
+
+*在`Count`组件中引用*
+
+```js
+
+import React, { Component } from 'react'
+import store from '../../redux/store'
+import {createIncrementAction,createDecrementAction,createIncrementAsyncAction} from '../../redux/count_action'
+export default class Count extends Component {
+
+    increment=()=>{
+    const {value} = this.selectNumber
+    store.dispatch(createIncrementAction(value*1))
+    }
+    decrement=()=>{
+        const {value} = this.selectNumber
+        store.dispatch(createDecrementAction(value*1))
+    }
+    increamjishu=()=>{
+        const {value} = this.selectNumber
+        const count = store.getState()
+        if (count % 2 !== 0) {
+          store.dispatch(createIncrementAction(value*1))
+        }
+    }
+    increamodd=()=>{
+        // setTimeout(()=>{
+            const {value} = this.selectNumber
+            store.dispatch(createIncrementAsyncAction(value*1,2000))
+        // },2000)
+    }
+  render() {
+    return (
+      <div>
+        <h2>当前求和为：{store.getState()}</h2><br></br>
+        <select ref={c=>this.selectNumber=c}>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select>
+        <button onClick={this.increment}>+</button>
+        <button onClick={this.decrement}>-</button> 
+        <button onClick={this.increamjishu}>和为奇数再加</button> 
+        <button onClick={this.increamodd}>等一等再加</button>
+      </div>
+    )
+  }
+}
+```
+
+4.备注：异步action不是必须要写的，完全可以自己等待异步任务的结果了再去分发同步action。
