@@ -9,7 +9,7 @@ date: 2023-10-29 14:12:40
 tags:
 ---
 
-## 📌 Redux
+## 📌 1.Redux
 
 ### 🌟 1.1. Redux理解
 
@@ -117,9 +117,23 @@ tags:
 
 ---
 
-## 📌 1. 求和案例_redux精简版 
+### 🌟 1.4. Redux异步编程
 
-### 🚀 1.1. 初步设定 
+1.**理解**
+
++ `redux`默认是不能进行异步处理的, 
++ 某些时候应用中需要在`redux`中执行异步任务(`ajax`, 定时器)
+
+2.使用异步中间件
+
+```bash
+npm install --save redux-thunk
+```
+
+
+## 📌 2.求和案例_redux精简版 
+
+### 🚀 2.1. 初步设定 
 - 🧹 移除`Count`组件的内部状态。
 
 Count组件
@@ -217,7 +231,7 @@ store.subscribe(()=>{
 })
 ```
 
-### 🏗 1.2. 结构搭建 
+### 🏗 2.2. 结构搭建 
 在`src`目录下创建:
 ```
 - redux
@@ -225,7 +239,7 @@ store.subscribe(()=>{
     - count_reducer.js
 ```
 
-### 📘 1.3. `store.js`配置: 
+### 📘 2.3. `store.js`配置: 
 1. 📦 引入redux中的`createStore`函数，创建一个store。
 2. 📡 `createStore`在调用时需要传入一个为其服务的reducer。
 3. 🌍 记得暴露store对象。
@@ -244,7 +258,7 @@ import countReducer from './count_reducer'
 export default createStore(countReducer)
 ```
 
-### 📖 1.4. `count_reducer.js`配置: 
+### 📖 2.4. `count_reducer.js`配置: 
 1. 🌐 reducer本质上是一个函数，接收：`preState`, `action`，返回处理后的状态。
 2. 🔧 reducer有两大任务：初始化状态、加工状态。
 3. 🚀 当reducer被首次调用时，是由store自动触发的。传递的`preState`是`undefined`, 传递的`action`是: `{type:'@@REDUX/INIT_a.2.b.4}`。
@@ -273,12 +287,12 @@ export default function countReducer(preState=initState,action){
 }
 ```
 
-### 📣 1.5. 实时监测 📡
+### 📣 2.5. 实时监测 📡
 - 在`index.js`中监测store的状态变化，一旦发生改变，重新渲染`<App/>`。
 
 📝 **备注**：redux只负责管理状态。至于状态的改变驱动着页面的展示，这需要我们手动实现。
 
-## 📌 2. 求和案例_redux完整版
+## 📌 3.求和案例_redux完整版
 
 *新增文件：*
 
@@ -375,7 +389,7 @@ export const createIncrementAction = data => ({type:INCREMENT,data})
 export const createDecrementAction = data => ({type:DECREMENT,data})
 ```
 
-## 📌 3.求和案例_redux异步action版
+## 📌 4.求和案例_redux异步action版
 
 1.明确：延迟的动作不想交给组件自身，想交给action
 
@@ -472,3 +486,412 @@ export default class Count extends Component {
 ```
 
 4.备注：异步action不是必须要写的，完全可以自己等待异步任务的结果了再去分发同步action。
+
+
+## 📌 5.Recat-redux
+
+### 原理图:
+
+   ![原理图](../../../img/react/learn/3.png)
+
+### 理解:
+
+   - React-Redux 是一个用于简化 React 应用中使用 Redux 的插件库。
+
+### React-Redux将所有组件分成两大类:
+
+   - 🎨 UI组件:
+     - 只负责呈现精美的用户界面，不包含业务逻辑。
+     - 通过 `props` 接收数据（通常是数据和函数）。
+     - 不使用任何 Redux 的 API。
+     - 通常保存在 `components` 文件夹下。
+
+   - 📦 容器组件:
+     - 负责管理数据和业务逻辑，不负责UI的呈现。
+     - 使用 Redux 的 API。
+     - 通常保存在 `containers` 文件夹下，以确保项目结构的美观性。
+
+### 相关API
+
+1. **Provider 🏛️**:
+   - Provider 组件允许您的整个React应用访问Redux的状态数据（state）。它是React-Redux的核心组件，通过它，所有子组件都能获得Redux的状态数据。
+```js
+<Provider store={store}>
+  <App />
+</Provider>
+```
+2. **connect 🔄**:
+   - connect 是一个函数，用于将UI组件包装成容器组件。它是React-Redux的一个关键API，用于连接Redux的状态和操作到React组件。
+```js
+import { connect } from 'react-redux'
+  connect(
+    mapStateToprops,
+    mapDispatchToProps
+  )(Counter)
+```
+3. **mapStateToProps 🌐**:
+   - mapStateToProps 是一个函数，用于将Redux的状态数据（state对象）映射到UI组件的props属性上。通过这个函数，您可以选择将Redux中的哪些数据传递给UI组件。
+```js
+const mapStateToprops = function (state) {
+  return {
+    value: state
+  }
+}
+```
+4. **mapDispatchToProps 🚀**:
+   - mapDispatchToProps 是一个函数，用于将分发Redux actions的函数映射到UI组件的props属性上。通过这个函数，您可以定义哪些操作可以在UI组件中触发Redux actions。
+
+这些API是React-Redux中非常重要的部分，它们有助于将React组件与Redux状态管理相结合，以创建强大的应用程序。
+
+### 使用上redux调试工具
+
+1.**安装chrome浏览器插件**
+   ![原理图](../../../img/react/learn/9.png)
+2.**下载工具依赖包**
+```bash
+npm install --save-dev redux-devtools-extension
+```
+
+## 📌 6.求和案例_react-redux基本使用
+
+1.**明确两个概念：**
++ UI组件:不能使用任何`redux`的`api`，只负责页面的呈现、交互等。
++ 容器组件：负责和`redux`通信，将结果交给UI组件。
+
+2.**如何创建一个容器组件————靠`react-redux` 的 `connect`函数**
++ `connect(mapStateToProps,mapDispatchToProps`)(UI组件)
++ `-mapStateToProps`:映射状态，返回值是一个对象
++ `-mapDispatchToProps`:映射操作状态的方法，返回值是一个对象
+
+3.**备注**
++ 容器组件中的`store`是靠`props`传进去的，而不是在容器组件中直接引入
++ `mapDispatchToProps`，也可以是一个对象,当接收到的`mapDispatchToProps`是一个对象时,`action`自动调用`dispatch`
+
+### 求和案例
+
+创建`containers`文件夹的同时，创建Count容器
+
+   ![](../../../img/react/learn/10.png)
+
+1.在App.js中引入Count容器
+```js
+import React, { Component } from 'react'
+import Count from './containers/Count'
+import store from './redux/store'
+export default class App extends Component {
+  render() {
+    return (
+      <div>
+        {/* 给容器组件传递store */}
+        <Count store={store}></Count>
+      </div>
+    )
+  }
+}
+```
+
+2.在`containers`使用connect()()创建并暴露一个Count的容器组件
+
+```js
+// 引入Count
+import Count from "../../component/Count";
+import {createIncrementAction,createDecrementAction,createIncrementAsyncAction} from '../../redux/count_action'
+// 引入connect用于连接UI组件与redux
+import { connect } from "react-redux";
+
+// a函数返回的对象中的key就作为传递给UIT组件props的key,
+//  value就作为传递给UT组件props的value----状态
+function mapStateToProps(state){
+    return {count:state}
+}
+// a函数返回的对象中的key就作为传递给UIT组件props的key,
+//  value就作为传递给UT组件props的value----操作方法
+function mapDispatchToProps(dispatch){
+    return {
+        jia:(data)=>{
+            dispatch(createIncrementAction(data));
+        },
+        jian:(data)=>{
+            dispatch(createDecrementAction(data))
+        },
+        jiaAsync:(data,time)=>{
+            dispatch(createIncrementAsyncAction(data,time))
+        }}
+}
+//使用connect()()创建并暴露一个Count的容器组件
+export default connect(mapStateToProps,mapDispatchToProps)(Count)
+```
+
+**优化版本**
+
+```js
+// 引入Count
+import Count from "../../component/Count";
+import {createIncrementAction,createDecrementAction,createIncrementAsyncAction} from '../../redux/count_action'
+// 引入connect用于连接UI组件与redux
+import { connect } from "react-redux";
+
+//  value就作为传递给UT组件props的value----状态
+// mapStateToProps = state => ({count:state})
+//  value就作为传递给UT组件props的value----操作方法
+// mapDispatchToProps=dispatch=>
+//     ({
+//         jia:(data)=>{
+//             dispatch(createIncrementAction(data));
+//         },
+//         jian:(data)=>{
+//             dispatch(createDecrementAction(data))
+//         },
+//         jiaAsync:(data,time)=>{
+//             dispatch(createIncrementAsyncAction(data,time))
+//         }})
+//使用connect()()创建并暴露一个Count的容器组件
+export default connect(
+    state => ({count:state}),
+    // mapDispatchToProps的一般写法
+    // dispatch=>
+    // ({
+    //     jia:data=>dispatch(createIncrementAction(data)),
+    //     jian:data=>dispatch(createDecrementAction(data)),
+    //     jiaAsync:(data,time)=>dispatch(createIncrementAsyncAction(data,time))
+    //     })
+    // mapDispatchToProps的简写
+    {
+        jia:createIncrementAction,
+        jian:createDecrementAction,
+        jiaAsync:createIncrementAsyncAction
+    }
+    )(Count)
+```
+
+3.在CountUI组件中通过`Props`读取并调用
+
+```js
+
+import React, { Component } from 'react'
+export default class Count extends Component {
+
+    increment=()=>{
+    const {value} = this.selectNumber
+    this.props.jia(value*1)
+    }
+    decrement=()=>{
+        const {value} = this.selectNumber
+        this.props.jian(value*1)
+    }
+    increamjishu=()=>{
+        const {value} = this.selectNumber
+        if (this.props.count %2 !==0) {
+          this.props.jia(value*1)
+        }
+    }
+    increamodd=()=>{
+      const {value} = this.selectNumber
+      this.props.jiaAsync(value*1,2000)
+    }
+    render() {
+      // console.log("CountUI组件接收到的",this.props);
+    return (
+      <div>
+        <h2>当前求和为：{this.props.count}</h2><br></br>
+        <select ref={c=>this.selectNumber=c}>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select>
+        <button onClick={this.increment}>+</button>
+        <button onClick={this.decrement}>-</button> 
+        <button onClick={this.increamjishu}>和为奇数再加</button> 
+        <button onClick={this.increamodd}>等一等再加</button>
+      </div>
+    )
+  }
+}
+```
+
+### Provider的用法
+
+`<Provider>` 是 React-Redux 中的一个核心组件，它的作用是用于包装整个 React 应用，以便所有组件都能够访问 Redux 的状态数据。
+
+**具体作用包括：**
+
+1. **传递 Redux Store**：`<Provider>` 接受一个 `store` 属性，通过这个属性，它将 Redux 的 store 传递给整个应用。这意味着所有通过 `<Provider>` 包装的组件都能够访问到 Redux 的 store。
+
+2. **自动监听状态变化**：`<Provider>` 内部会自动监听 Redux store 的状态变化。当状态发生变化时，它会自动通知所有连接到 Redux store 的组件，以便它们可以更新界面以反映最新的状态。
+
+3. **简化组件嵌套**：使用 `<Provider>` 可以避免将 Redux store 通过 props 一级一级手动传递给每个组件。这可以显著减少组件嵌套和简化代码。
+
+4. **提供统一的状态管理**：`<Provider>` 使应用程序的状态管理变得一致和可预测。所有连接到 Redux store 的组件都共享相同的状态树，这有助于更好地组织和管理应用的状态。
+
+总之，`<Provider>` 是 React-Redux 中的一个重要组件，它用于将 Redux store 注入整个应用，使状态管理更加方便和一致。这有助于构建可维护和可扩展的 React 应用程序。
+
+```js
+//引入react核心库
+import React from 'react'
+//引入ReactDOM
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter} from 'react-router-dom/cjs/react-router-dom'
+//引入App
+import App from './App'
+import store from './redux/store';
+import { Provider } from 'react-redux';
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+  root.render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+// 监测redux中状态的改变，如redux的状态发生了改变，
+// 那么重新渲染App组件,当使用react-redux时就不需要监测了
+// store.subscribe(()=>{
+//   root.render(
+//     <React.StrictMode>
+//       <BrowserRouter>
+//         <App />
+//       </BrowserRouter>
+//     </React.StrictMode>
+//   );
+// })
+```
+
+## 📌 7.求和案例_react-redux优化
+
+1. **容器组件和UI组件整合一个文件**:
+   - 在`React-Redux`中，您可以将容器组件和UI组件整合到同一个文件中，以提高项目的组织和可维护性。
+
+2. **无需自己给容器组件传递store**:
+   - 通过包裹 `<App/>` 组件的 `<Provider store={store}>`，您无需手动传递`store`给容器组件，`React-Redux`会自动处理。
+
+3. **不再需要手动检测Redux状态的变化**:
+   - 使用`React-Redux`后，容器组件可以自动监听`Redux`状态的变化，无需手动检测。这大大简化了状态管理的工作。
+
+4. **mapDispatchToProps 简化写法**:
+   - 您可以将`mapDispatchToProps`简化为一个对象，而不必编写函数。这使代码更加简洁。
+
+5. **与Redux打交道的步骤**:
+   - 一个组件要与`Redux`进行交互，通常需要以下步骤：
+     (1). 定义好UI组件，但不暴露它。
+     (2). 引入 `connect` 函数生成一个容器组件并暴露它。写法如下：
+         ```javascript
+         connect(
+           state => ({ key: value }), // 映射状态
+           { key: xxxxxAction } // 映射操作状态的方法
+         )(UI组件)
+         ```
+     (3). 在UI组件中，通过 `this.props.xxxxxxx` 读取和操作状态，然后重新排版组件。
+
+**注意：**
+>(1).所有变量名字要规范，尽量触发对象的简写形式。
+>(2).reducers文件夹中，编写index.js专门用于汇总并暴露所有的reducer
+
+通过这些步骤，您可以有效地将React组件与Redux状态管理集成在一起，以创建高效且易于维护的应用程序。
+
+**整合求和案例的Count组件与Count容器**
+
+   ![](../../../img/react/learn/11.png)
+
+```js
+// 引入React
+import React, { Component } from 'react'
+import {createIncrementAction,createDecrementAction,createIncrementAsyncAction} from '../../redux/count_action'
+// 引入connect用于连接UI组件与redux
+import { connect } from "react-redux";
+// CountUI组件
+class Count extends Component {
+
+    increment=()=>{
+    const {value} = this.selectNumber
+    this.props.jia(value*1)
+    }
+    decrement=()=>{
+        const {value} = this.selectNumber
+        this.props.jian(value*1)
+    }
+    increamjishu=()=>{
+        const {value} = this.selectNumber
+        if (this.props.count %2 !==0) {
+          this.props.jia(value*1)
+        }
+    }
+    increamodd=()=>{
+      const {value} = this.selectNumber
+      this.props.jiaAsync(value*1,2000)
+    }
+    render() {
+      // console.log("CountUI组件接收到的",this.props);
+    return (
+      <div>
+        <h2>当前求和为：{this.props.count}</h2><br></br>
+        <select ref={c=>this.selectNumber=c}>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select>
+        <button onClick={this.increment}>+</button>
+        <button onClick={this.decrement}>-</button> 
+        <button onClick={this.increamjishu}>和为奇数再加</button> 
+        <button onClick={this.increamodd}>等一等再加</button>
+      </div>
+    )
+  }
+}
+
+//使用connect()()创建并暴露一个Count的容器组件
+export default connect(
+    state => ({count:state}),
+    {
+        jia:createIncrementAction,
+        jian:createDecrementAction,
+        jiaAsync:createIncrementAsyncAction
+    }
+)(Count)
+
+```
+
+## 📌 8.求和案例react-redux数据共享
+
+![案例效果图](../../../img/react/learn/12.png)
+
+[Gitee地址](https://gitee.com/guo-chengtao1/Reactpractice/tree/master/10.%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB%E7%89%88)
+
+1.定义一个`Pserson`组件，和`Count`组件通过redux共享数据。
+2.为`Person`组件编写：`reducer`、`action`，配置`constant`常量。
+3.重点：`Person`的``reducer`和`Count`的`Reducer`要使用`combineReducers`进行合并，合并后的总状态是一个对象！！！
+4.交给store的是总reducer，最后注意在组件中取出状态的时候，记得“取到位”。
+
+## 📌 9.react-redux开发者工具的使用
+
+1.**安装**
+
+```js
+npm i redux-devtools-extension
+```
+
+2.**store中进行配置**
+
+```js
+/* 
+	该文件专门用于暴露一个store对象，整个应用只有一个store对象
+*/
+//引入createStore，专门用于创建redux中最为核心的store对象
+// applyMiddleware用于执行中间件
+import { legacy_createStore as createStore,applyMiddleware,combineReducers} from 'redux'
+// 引入redux-thunk中间件,用于支持异步action
+import thunk from 'redux-thunk'
+//引入为Count组件服务的reducer
+import countReducer from './reducer/count'
+// 引入redux-devtools-extension
+import {composeWithDevTools} from 'redux-devtools-extension'
+//引入为Person组件服务的reducer
+import personReducer from './reducer/person'
+// 合并所有Reducer
+const alLAction=combineReducers({count:countReducer,persons:personReducer})
+//暴露store
+export default createStore(alLAction,composeWithDevTools(applyMiddleware(thunk)))
+
+```
