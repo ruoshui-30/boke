@@ -895,3 +895,33 @@ const alLAction=combineReducers({count:countReducer,persons:personReducer})
 export default createStore(alLAction,composeWithDevTools(applyMiddleware(thunk)))
 
 ```
+
+## 📌 10.reac项目打包
+
+1. 使用项目的打包命令：
+```bash
+npm run build
+```
+
+2. 部署打包后的文件 `build`，您有两种选择：
+
+   2.1. 自己编写服务器（Node.js或Java）：
+
+   - 您可以创建一个自定义的服务器来托管打包后的文件 `build`。
+   - 这需要您编写相应的服务器端代码，以便浏览器可以访问您的应用程序。
+
+   2.2. 使用 `serve` 库进行快速搭建服务器：
+
+   - 安装 `serve` 库（如果未安装）：
+   ```bash
+   npm i serve -g
+   ```
+
+   - 在命令行中运行以下命令，以快速搭建服务器并托管打包后的文件 `build`：
+   ```bash
+   serve build
+   ```
+
+   这将在端口上启动一个简单的静态文件服务器，允许您通过浏览器访问您的应用程序。
+
+这样，您可以选择自己编写服务器或使用 `serve` 库来部署您的打包文件。
