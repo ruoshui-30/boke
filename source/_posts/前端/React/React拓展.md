@@ -560,3 +560,312 @@ function C(){
  )
 }
 ```
+
+## 组件优化
+
+### Component的2个问题 
+
+> 1. 只要执行`setState()`,即使不改变状态数据, 组件也会重新`render()` ==> 效率低
+>
+> 2. 只要当前组件重新`render()`, 就会自动重新render子组件，纵使子组件没有用到父组件的任何数据,也会重新调用`render()` ==> 效率低
+
+### 效率高的做法
+
+>  只有当组件的`state`或`props`数据发生改变时才重新`render()`
+
+### 原因
+
+>  `Component中`的`shouldComponentUpdate()`总是返回`true`
+
+### 解决
+
+** 办法1: **
+
+>+ 重写`shouldComponentUpdate()`方法
+>+ 比较新旧`state`或`props`数据, 如果有变化才返回`true`, 如果没有返回`false`
+
+** 办法2:  **
+
+>+ 使用`PureComponent`
+>+ `PureComponent`重写了`shouldComponentUpdate()`, 只有`state`或`props`数据有变化才返回`true`
+
+**  注意: **
+
++ 只是进行`state`和`props`数据的浅比较, 如果只是数据对象内部数据变了, 返回`false`  
++ 不要直接修改`state`数据, 而是要产生新数据
++ 项目中一般使用`PureComponent`来优化
+
+**示例：**
+
+```js
+import React, { PureComponent } from 'react'
+export default class Parent extends PureComponent {
+
+	state = {
+		carName:"奔驰c36",
+		stus:['小张','小李','小王']}
+
+	addStu = ()=>{
+		// 方法不可取
+		// 不能直接修改state数据, 而是要产生新数据
+		/* const {stus} = this.state
+		stus.unshift('小刘')
+		this.setState({stus}) */
+
+		const {stus} = this.state
+		this.setState({stus:['小刘',...stus]})
+	}
+
+	changeCar = ()=>{
+		this.setState({carName:'迈巴赫'})
+		// 方法不可取
+		// 不能直接修改state数据, 而是要产生新数据
+		// const obj = this.state
+		// obj.carName = '迈巴赫'
+		// console.log(obj === this.state);
+		// this.setState(obj)
+	}
+	// 重写shouldComponentUpdate
+	/* shouldComponentUpdate(nextProps,nextState){
+		console.log(this.props,this.state); //目前的props和state
+		console.log(nextProps,nextState); //接下要变化的目标props，目标state
+		return !this.state.carName === nextState.carName
+	} */
+
+	render() {
+		console.log('Parent---render');
+		const {carName} = this.state
+		return (
+			<div className="parent">
+				<h3>我是Parent组件</h3>
+				{this.state.stus}&nbsp;
+				<span>我的车名字是：{carName}</span><br/>
+				<button onClick={this.changeCar}>点我换车</button>
+				<button onClick={this.addStu}>添加一个小刘</button>
+				<Child carName="奥拓"/>
+			</div>
+		)
+	}
+}
+
+class Child extends PureComponent {
+	// 重写shouldComponentUpdate
+	/* shouldComponentUpdate(nextProps,nextState){
+		console.log(this.props,this.state); //目前的props和state
+		console.log(nextProps,nextState); //接下要变化的目标props，目标state
+		return !this.props.carName === nextProps.carName
+	} */
+
+	render() {
+		console.log('Child---render');
+		return (
+			<div className="child">
+				<h3>我是Child组件</h3>
+				<span>我接到的车是：{this.props.carName}</span>
+			</div>
+		)
+	}
+}
+```
+
+## Render Props
+
+在React中，如何向组件内部动态传入带内容的结构（标签）？Vue中可以使用slot技术，也就是通过组件标签体传入结构`<A><B/></A>`，那么在React中可以采用以下两种常见方法：
+
+### Children Props
+
+在React中，可以使用 `children props` 来通过组件标签体传入结构。这种方法允许您将内容作为子元素传递给组件，然后在组件内部访问和显示这些子元素。但如果子组件需要访问父组件的数据，可能需要使用状态提升或其他技术来实现。
+
+```jsx
+<A>
+  <B>xxxx</B>
+</A>
+// 在A组件中使用 {this.props.children} 来渲染子元素
+```
+
+### Render Props
+
+另一种常见的方法是使用 `render props`。通过这种方式，您可以通过组件标签属性传入结构，并且可以携带数据。通常，这是通过传递一个渲染函数属性来实现的。这种方法更加灵活，可以轻松地传递数据给子组件。
+
+```jsx
+<A render={(data) => <C data={data}></C>}></A>
+// 在A组件中使用 {this.props.render(内部state数据)} 来渲染子组件C，并传递数据
+```
+
+这两种方法在React中用于实现组件复用和组合，根据需要选择适合您场景的方法。这是React中的常见模式，用于动态传递结构和数据到组件内部。
+
+**示例：**
+
+```js
+import React, { Component } from 'react';
+
+export default class Parent extends Component {
+  render() {
+    return (
+      <div className="parent">
+        <h3>我是Parent组件</h3>
+        {/* 通过render属性将name数据传递给B组件 */}
+        <A render={(name) => <B name={name} />} />
+      </div>
+    );
+  }
+}
+
+class A extends Component {
+  state = { name: 'tom' }; // A组件的初始状态数据
+
+  render() {
+    console.log(this.props);
+    const { name } = this.state;
+    return (
+      <div className="a">
+        <h3>我是A组件</h3>
+        {/* 通过render属性调用传入的函数并传递name数据 */}
+        {this.props.render(name)} 
+      </div>
+    );
+  }
+}
+
+class B extends Component {
+  render() {
+    console.log('B--render');
+    return (
+      <div className="b">
+        <h3>我是B组件, {this.props.name}</h3> {/* 显示传入的name数据 */}
+      </div>
+    );
+  }
+}
+```
+
+## 错误边界
+
+### 理解：
+
+错误边界`(Error boundary)`：用来捕获后代组件错误，渲染出备用页面
+
+### 特点：
+
+只能捕获后代组件生命周期产生的错误，不能捕获自己组件产生的错误和其他组件在合成事件、定时器中产生的错误
+
+### 使用方式：
+
+>`getDerivedStateFromError`配合`componentDidCatch`
+
+```js
+// 生命周期函数，一旦后台组件报错，就会触发
+static getDerivedStateFromError(error) {
+    console.log(error);
+    // 在render之前触发
+    // 返回新的state
+    return {
+        hasError: true,
+    };
+}
+
+componentDidCatch(error, info) {
+    // 统计页面的错误。发送请求发送到后台去
+    console.log(error, info);
+}
+```
+
+**示例：**
+
+如果子组件出问题,给其父组件添加错误边界
+
+子组件`Child`
+```js
+import React, { Component } from 'react'
+
+export default class Child extends Component {
+ state = {
+  users:[
+   {id:'001',name:'tom',age:18},
+   {id:'002',name:'jack',age:19},
+   {id:'003',name:'peiqi',age:20},
+  ]
+  // users:'abc'
+ }
+
+ render() {
+  return (
+   <div>
+    <h2>我是Child组件</h2>
+    {
+     this.state.users.map((userObj)=>{
+      return <h4 key={userObj.id}>{userObj.name}----{userObj.age}</h4>
+     })
+    }
+   </div>
+  )
+ }
+}
+```
+
+父组件`Parent`
+```js
+import React, { Component } from 'react'
+import Child from './Child'
+
+export default class Parent extends Component {
+
+ state = {
+  hasError:'' //用于标识子组件是否产生错误
+ }
+
+ //当Parent的子组件出现报错时候，会触发getDerivedStateFromError调用，并携带错误信息
+ static getDerivedStateFromError(error){
+  console.log('@@@',error);
+  return {hasError:error}
+ }
+
+ componentDidCatch(){
+  console.log('此处统计错误，反馈给服务器，用于通知编码人员进行bug的解决');
+ }
+
+ render() {
+  return (
+   <div>
+    <h2>我是Parent组件</h2>
+    {this.state.hasError ? <h2>当前网络不稳定，稍后再试</h2> : <Child/>}
+   </div>
+  )
+ }
+}
+```
+
+## 组件通信方式总结
+
+### 组件间的关系：
+
+- 父子组件
+- 兄弟组件（非嵌套组件）
+- 祖孙组件（跨级组件）
+
+### 几种通信方式：
+
+你提到了一些在React中用于组件通信的常见方式，这些方式包括：
+
+1.  **Props**：
+    
+    *   **Children Props**：通过将子元素作为`props`传递给组件，子组件可以在其中渲染内容。
+    *   **Render Props**：通过将一个渲染函数作为`props`传递给组件，使组件能够动态渲染内容。
+2.  **消息订阅-发布**：
+    
+    * 	`pubs-sub`、`event`等等
+    *   通过使用第三方库或原生事件系统来实现消息的发布和订阅，以实现组件之间的通信。
+3.  **集中式管理**：
+    
+    *   使用状态管理工具，如**Redux**或**Dva**，以集中管理应用程序的状态，从而实现不同组件之间的通信。
+4.  **Context**：
+    
+    *   使用**Context** API，可以在React中创建一个全局数据存储和访问的机制。通常结合**Provider**和**Consumer**来实现数据的传递，实现了生产者-消费者模式。
+
+这些通信方式在不同场景下都有各自的优势和用途。选择适当的通信方式取决于项目的需求和架构。
+
+### 比较好的搭配方式：
+
++ 父子组件：`props`
++ 兄弟组件：消息订阅-发布、集中式管理
++ 祖孙组件(跨级组件)：消息订阅-发布、集中式管理、`conText`(开发用的少，封装插件用的多)
