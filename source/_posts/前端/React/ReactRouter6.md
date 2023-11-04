@@ -302,22 +302,91 @@ export default function Demo() {
 2. 示例代码：
 
 ```jsx
-import React from 'react';
-import { Routes, Route, useParams } from 'react-router-dom';
-import User from './pages/User.jsx'
-
-function ProfilePage() {
-    // 获取URL中携带过来的params参数
-    let { id } = useParams();
+// Message组件,传递数据
+import React ,{useState}from 'react'
+import {Link, Outlet} from 'react-router-dom'
+export default function Message() {
+    const [message] = useState([
+        {id:'001',title:'消息1',content:'我上小学了'},
+        {id:'002',title:'消息2',content:'我上中学了'},
+        {id:'003',title:'消息3',content:'我上大学了'}
+    ])
+    return (
+    <div>
+        <ul>
+        {
+            message.map((obj)=>{
+                return <li key={obj.id}>
+                        {/* <Link to='detail>{obj.title}</Link>&nbsp;&nbsp; */}
+                        {/* params专递参数 */}
+                        <Link to={`detail/${obj.id}/${obj.title}/${obj.content}`}>{obj.title}</Link>&nbsp;&nbsp;
+                    </li>
+            })
+        }
+        </ul>
+        <hr/>
+        {/* 指定路由组件的展示位置 */}
+        <Outlet></Outlet>
+  </div>
+  )
 }
 
-function App() {
+// Detail组件接收数据
+import React from 'react';
+import { useParams, useMatch } from 'react-router-dom';
+
+export default function Detail() {
+    // 使用 useParams 钩子来获取路由参数 id、title 和 content
+    const { id, title, content } = useParams();
+
+    // 也可以使用 useMatch 钩子来获取路由匹配信息，包括参数
+    const match = useMatch('/home/message/detail/:id/:title/:content');
+    console.log(match.params); // 打印匹配的参数
+
     return (
-    <Routes>
-        <Route path="users/:id" element={<User />}/>
-    </Routes>
+        <div>
+            <ul>
+                <li>{id}</li>
+                <li>{title}</li>
+                <li>{content}</li>
+            </ul>
+        </div>
     );
 }
+
+// 路由表中生命接收
+export default [
+    {
+      path:'/about',
+      element: <About></About>
+    },
+    {
+      path:'/home',
+      element: <Home></Home>,
+      children:
+      [
+        {
+          path:'message',
+          element:<Message></Message>,
+          children:[
+            {
+              path:'detail/:id/:title/:content',
+              element:<Detail></Detail>
+            }
+          ]
+      },
+      {
+        path:'news',
+        element:<News></News>
+    },
+
+      ]
+    },
+    {
+      path:'/',
+      element: <Navigate></Navigate>
+    }
+  ]
 ```
 
 ### 4. useSearchParams()
@@ -329,58 +398,127 @@ function App() {
 3. 示例代码：
 
 ```jsx
-import React from 'react'
-import {useSearchParams} from 'react-router-dom'
-
-export default function Detail() {
-const [search,setSearch] = useSearchParams()
-const id = search.get('id')
-const title = search.get('title')
-const content = search.get('content')
-return (
-    <ul>
-        <li>
-            <button onClick={()=>setSearch('id=008&title=哈哈&content=嘻嘻')}>点我更新一下收到的search参数</button>
-        </li>
-        <li>消息编号：{id}</li>
-        <li>消息标题：{title}</li>
-        <li>消息内容：{content}</li>
-    </ul>
-)
+// Message传递数据
+import React ,{useState}from 'react'
+import {Link, Outlet} from 'react-router-dom'
+export default function Message() {
+    const [message] = useState([
+        {id:'001',title:'消息1',content:'我上小学了'},
+        {id:'002',title:'消息2',content:'我上中学了'},
+        {id:'003',title:'消息3',content:'我上大学了'}
+    ])
+    return (
+    <div>
+        <ul>
+        {
+            message.map((obj)=>{
+                return <li key={obj.id}>
+                        {/* <Link to='detail>{obj.title}</Link>&nbsp;&nbsp; */}
+                        {/* searchparmes传递参数 */}
+                        <Link to={`detail/?id=${obj.id}&title=${obj.title}&content=${obj.content}`}>{obj.title}</Link>&nbsp;&nbsp;
+                    </li>
+            })
+        }
+        </ul>
+        <hr/>
+        {/* 指定路由组件的展示位置 */}
+        <Outlet></Outlet>
+  </div>
+  )
 }
 
+// Detail组件接收数据
+import React from 'react';
+import { useSearchParams, useLocation } from 'react-router-dom';
+
+export default function Detail() {
+  // 使用 useSearchParams 钩子来获取当前页面的搜索参数
+  const [search, setSearch] = useSearchParams();
+  // 从搜索参数中获取 id、title 和 content
+  const id = search.get('id');
+  const title = search.get('title');
+  const content = search.get('content');
+
+  // 使用 useLocation 钩子来获取当前页面的位置信息
+  const location = useLocation();
+  
+  console.log(location); // 打印当前页面的位置信息
+  console.log(location.pathname); // 打印当前页面的路径名
+
+  return (
+    <div>
+      <ul>
+        <button onClick={() => setSearch('id=004&title=消息4&content=我考上研究生了')}>
+          点我更新一下收到的搜索参数
+        </button>
+        <li>{id}</li>
+        <li>{title}</li>
+        <li>{content}</li>
+      </ul>
+    </div>
+  );
+}
 ```
 
-### 5. useLocation()
+### 5. useLocation() state传递参数
 
 1. 作用：获取当前 location 信息，对标5.x中的路由组件的`location`属性。
 
 2. 示例代码：
 
 ```jsx
-import React from 'react'
-import {useLocation} from 'react-router-dom'
+// Message传递数据
+import React ,{useState}from 'react'
+import {Link, Outlet} from 'react-router-dom'
+export default function Message() {
+    const [message] = useState([
+        {id:'001',title:'消息1',content:'我上小学了'},
+        {id:'002',title:'消息2',content:'我上中学了'},
+        {id:'003',title:'消息3',content:'我上大学了'}
+    ])
+    return (
+    <div>
+        <ul>
+        {
+            message.map((obj)=>{
+                return <li key={obj.id}>
+                        {/* <Link to='detail>{obj.title}</Link>&nbsp;&nbsp; */}
+                        {/* state传递参数 */}
+                        <Link 
+                        to='detail' 
+                        state={{
+                            id:obj.id,
+                            title:obj.title,
+                            content:obj.content
+                        }}>{obj.title}</Link>&nbsp;&nbsp;
+                    </li>
+            })
+        }
+        </ul>
+        <hr/>
+        {/* 指定路由组件的展示位置 */}
+        <Outlet></Outlet>
+  </div>
+  )
+}
+
+// Detail接收数据
+import React from 'react';
+import { useLocation } from 'react-router-dom';
 
 export default function Detail() {
-const x = useLocation()
-console.log('@',x)
-    // x就是location对象: 
-/*
-    {
-        hash: "",
-        key: "ah9nv6sz",
-        pathname: "/login",
-        search: "?name=zs&age=18",
-        state: {a: 1, b: 2}
-    }
-*/
-return (
-    <ul>
-    <li>消息编号：{id}</li>
-    <li>消息标题：{title}</li>
-    <li>消息内容：{content}</li>
-    </ul>
-)
+  // 使用 useLocation 钩子获取当前页面的位置信息，其中包含一个 state 对象
+  const { state } = useLocation();
+
+  return (
+    <div>
+      <ul>
+        <li>{state.id}</li>       {/* 显示 state 对象中的 id 属性值 */}
+        <li>{state.title}</li>    {/* 显示 state 对象中的 title 属性值 */}
+        <li>{state.content}</li>  {/* 显示 state 对象中的 content 属性值 */}
+      </ul>
+    </div>
+  );
 }
 ```
 
@@ -420,7 +558,7 @@ export default function Login() {
 
 ### 7. useInRouterContext()
 
-​			作用：如果组件在 `<Router>` 的上下文中呈现，则 `useInRouterContext` 钩子返回 true，否则返回 false。
+​作用：如果组件在 `<Router>` 的上下文中呈现，则 `useInRouterContext` 钩子返回 true，否则返回 false。
 
 ### 8. useNavigationType()
 
