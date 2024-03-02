@@ -2,7 +2,7 @@
 title: JStwo
 abbrlink: 3813819597
 date: 2023-11-15 13:16:29
-tags:
+tags: 前端面试题汇总
 ---
 
 ## 手写Promise

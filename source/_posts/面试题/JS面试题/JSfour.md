@@ -2,7 +2,7 @@
 title: JSfour
 abbrlink: 3510076627
 date: 2023-11-15 13:33:07
-tags:
+tags: 前端面试题汇总
 ---
 
 # 防抖和节流

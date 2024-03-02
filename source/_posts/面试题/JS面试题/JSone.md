@@ -2,7 +2,7 @@
 title: JSone
 abbrlink: 2297710682
 date: 2023-11-15 12:59:58
-tags:
+tags: 前端面试题汇总
 ---
 
 ## 知识点自测
